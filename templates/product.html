@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ product.name }}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="{{ 'dark' if dark else '' }}">
+    <header>
+        <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 Fureoska</h1></a>
+        <div class="header-right">
+            <a href="/toggle-theme" class="icon-btn">{{ '☀️' if dark else '🌙' }}</a>
+            {% if user %}
+                <a href="/profile" class="icon-btn">👤 {{ user.username }}</a>
+            {% else %}
+                <a href="/login" class="icon-btn">Войти</a>
+            {% endif %}
+            <a href="/favorites" class="icon-btn">❤️</a>
+            <a href="/cart" class="icon-btn">🛒 {% if cart_count > 0 %}<span class="badge">{{ cart_count }}</span>{% endif %}</a>
+            <a href="/" class="icon-btn">← Назад</a>
+        </div>
+    </header>
+
+    <div class="product-page">
+        <div class="product-img">
+            {% if product.photo %}
+                <img src="{{ product.photo }}" alt="{{ product.name }}">
+            {% else %}
+                <div class="no-photo" style="height:400px;">Нет фото</div>
+            {% endif %}
+        </div>
+        <div class="product-details">
+            <div class="category-tag">{{ product.category }} — {{ product.subcategory }}</div>
+            <h1>{{ product.name }}</h1>
+            <p class="product-desc">{{ product.description }}</p>
+            <p class="product-price">{{ product.price }} ₽</p>
+
+            {% if seller %}
+            <a href="/seller/{{ seller.id }}" class="seller-link">
+                🏪 {{ seller.shop_name or seller.username }}
+            </a>
+            {% endif %}
+
+            <div class="size-picker">
+                <p><strong>Выберите размер:</strong></p>
+                <div class="sizes">
+                    {% for size in sizes %}
+                    <label class="size-label">
+                        <input type="radio" name="size" value="{{ size }}" {% if size == 'M' %}checked{% endif %}>
+                        <span>{{ size }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="product-actions">
+                <a href="#" onclick="addToCart(); return false;" class="btn big-btn">🛒 Добавить в корзину</a>
+                <a href="/favorites/toggle/{{ product.id }}" class="fav-btn {% if product.id in favorites %}active{% endif %}" style="font-size:32px;">
+                    {% if product.id in favorites %}❤️{% else %}🤍{% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function addToCart() {
+            const size = document.querySelector('input[name="size"]:checked').value;
+            window.location.href = "/cart/add/{{ product.id }}?size=" + size;
+        }
+    </script>
+</body>
+</html>

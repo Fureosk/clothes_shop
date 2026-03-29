@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Редактировать профиль</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="{{ 'dark' if dark else '' }}">
+    <header>
+        <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 Fureoska</h1></a>
+        <div class="header-right">
+            <a href="/profile" class="icon-btn">← Назад</a>
+        </div>
+    </header>
+
+    <div class="form-container">
+        <h2 style="margin-bottom:20px;">✏️ Редактировать профиль</h2>
+        <form method="POST">
+            <label>Название магазина</label>
+            <input type="text" name="shop_name" value="{{ user.shop_name or '' }}" required>
+
+            <label>Описание магазина</label>
+            <textarea name="shop_desc" placeholder="Расскажите о своём магазине">{{ user.shop_desc or '' }}</textarea>
+
+            <button type="submit" class="btn" style="width:100%; margin-top:20px; padding:12px;">
+                Сохранить
+            </button>
+        </form>
+    </div>
+</body>
+</html>

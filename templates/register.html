@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Регистрация — Fureoska</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="{{ 'dark' if dark else '' }}">
+    <header>
+        <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 Fureoska</h1></a>
+    </header>
+
+    <div class="auth-page">
+        <div class="auth-box">
+            <h2>Создать аккаунт</h2>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for cat, msg in messages %}
+                <div class="flash flash-{{ cat }}">{{ msg }}</div>
+                {% endfor %}
+            {% endwith %}
+
+            <form method="POST">
+                <label>Логин</label>
+                <input type="text" name="username" placeholder="username" required>
+
+                <label>Email</label>
+                <input type="email" name="email" placeholder="email@example.com" required>
+
+                <label>Пароль</label>
+                <input type="password" name="password" placeholder="Минимум 6 символов" required>
+
+                <label>Тип аккаунта</label>
+                <div class="role-picker">
+                    <label class="role-card">
+                        <input type="radio" name="role" value="buyer" checked>
+                        <span>
+                            <strong>🛍️ Покупатель</strong>
+                            <small>Покупаю одежду</small>
+                        </span>
+                    </label>
+                    <label class="role-card">
+                        <input type="radio" name="role" value="seller">
+                        <span>
+                            <strong>🏪 Продавец</strong>
+                            <small>Продаю одежду</small>
+                        </span>
+                    </label>
+                </div>
+
+                <div id="seller-fields" style="display:none;">
+                    <label>Название магазина</label>
+                    <input type="text" name="shop_name" placeholder="Например: StyleHub">
+
+                    <label>Описание магазина</label>
+                    <textarea name="shop_desc" placeholder="Пару слов о вашем магазине" style="height:70px;"></textarea>
+                </div>
+
+                <button type="submit" class="btn" style="width:100%; margin-top:20px; padding:12px;">
+                    Зарегистрироваться
+                </button>
+            </form>
+
+            <p class="auth-switch">Уже есть аккаунт? <a href="/login">Войти</a></p>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('input[name="role"]').forEach(r => {
+            r.addEventListener('change', () => {
+                document.getElementById('seller-fields').style.display =
+                    r.value === 'seller' ? 'block' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Добавить товар</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <h1>➕ Добавить товар</h1>
+        <a href="/" class="btn">← Назад</a>
+    </header>
+
+    <div class="form-container">
+        <form method="POST" enctype="multipart/form-data">
+            <label>Название товара</label>
+            <input type="text" name="name" placeholder="Например: Пуховик" required>
+
+            <label>Цена (₽)</label>
+            <input type="number" name="price" placeholder="Например: 3999" required>
+
+            <label>Категория</label>
+            <select name="category" id="category" onchange="updateSubcategories()">
+                <option>Мужская</option>
+                <option>Женская</option>
+                <option>Детская</option>
+            </select>
+
+            <label>Подкатегория</label>
+            <select name="subcategory" id="subcategory"></select>
+
+            <label>Описание</label>
+            <textarea name="description" placeholder="Краткое описание товара"></textarea>
+
+            <label>Фото товара</label>
+            <input type="file" name="photo" accept="image/*">
+
+            <button type="submit" class="btn">Добавить товар</button>
+        </form>
+    </div>
+
+    <script>
+        const subcategories = {
+            "Мужская": ["Верхняя одежда", "Футболки", "Брюки"],
+            "Женская": ["Платья", "Юбки", "Блузки"],
+            "Детская": ["Верхняя одежда", "Футболки", "Брюки"],
+        };
+
+        function updateSubcategories() {
+            const cat = document.getElementById("category").value;
+            const sub = document.getElementById("subcategory");
+            sub.innerHTML = "";
+            subcategories[cat].forEach(s => {
+                const opt = document.createElement("option");
+                opt.value = s;
+                opt.textContent = s;
+                sub.appendChild(opt);
+            });
+        }
+
+        updateSubcategories();
+    </script>
+</body>
+</html>

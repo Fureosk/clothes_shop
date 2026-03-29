@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Магазин одежды Fureoska</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="{{ 'dark' if dark else '' }}">
+    <header>
+        <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 Магазин одежды Fureoska</h1></a>
+        <div class="header-right">
+            <form method="GET" action="/" class="search-form">
+                <input type="text" name="search" placeholder="🔍 Поиск..." value="{{ search }}">
+                <input type="hidden" name="category" value="{{ current }}">
+                <input type="hidden" name="subcategory" value="{{ subcategory }}">
+                <button type="submit">Найти</button>
+            </form>
+            <a href="/toggle-theme" class="icon-btn">{{ '☀️' if dark else '🌙' }}</a>
+            {% if user %}
+                <a href="/profile" class="icon-btn">👤 {{ user.username }}</a>
+            {% else %}
+                <a href="/login" class="icon-btn">Войти</a>
+                <a href="/register" class="icon-btn">Регистрация</a>
+            {% endif %}
+            <a href="/favorites" class="icon-btn">❤️</a>
+            <a href="/cart" class="icon-btn">🛒 {% if cart_count > 0 %}<span class="badge">{{ cart_count }}</span>{% endif %}</a>
+            {% if user and user.role in ('seller','admin') %}
+            <a href="/add" class="btn">+ Добавить</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- CATEGORY CARDS NAV -->
+    <div class="cat-nav">
+        <a href="/?category=Все" class="cat-card {% if current == 'Все' %}active{% endif %}">
+            <div class="cat-icon">✨</div>
+            <div class="cat-name">Все</div>
+            <div class="cat-desc">Весь каталог</div>
+        </a>
+        <a href="/?category=Мужская" class="cat-card {% if current == 'Мужская' %}active{% endif %}">
+            <div class="cat-icon">👔</div>
+            <div class="cat-name">Мужская</div>
+            <div class="cat-desc">Одежда и обувь</div>
+        </a>
+        <a href="/?category=Женская" class="cat-card {% if current == 'Женская' %}active{% endif %}">
+            <div class="cat-icon">👗</div>
+            <div class="cat-name">Женская</div>
+            <div class="cat-desc">Стильные образы</div>
+        </a>
+        <a href="/?category=Детская" class="cat-card {% if current == 'Детская' %}active{% endif %}">
+            <div class="cat-icon">🧒</div>
+            <div class="cat-name">Детская</div>
+            <div class="cat-desc">Для малышей и детей</div>
+        </a>
+    </div>
+
+    {% if subcats %}
+    <div class="subnav">
+        <a href="/?category={{ current }}&subcategory=Все" class="subtab {% if subcategory == 'Все' %}active{% endif %}">Все</a>
+        {% for sub in subcats %}
+        <a href="/?category={{ current }}&subcategory={{ sub }}" class="subtab {% if subcategory == sub %}active{% endif %}">{{ sub }}</a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="toolbar">
+        <span class="results-count">Найдено: {{ products|length }} товаров</span>
+        <div class="sort-btns">
+            <span>Сортировка:</span>
+            <a href="?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&sort=asc" class="sort-btn {% if sort == 'asc' %}active{% endif %}">↑ Дешевле</a>
+            <a href="?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&sort=desc" class="sort-btn {% if sort == 'desc' %}active{% endif %}">↓ Дороже</a>
+            {% if sort %}<a href="?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}" class="sort-btn">✕ Сброс</a>{% endif %}
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}">{{ msg }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <div class="grid">
+        {% for product in products %}
+        <div class="card">
+            <a href="/product/{{ product.id }}">
+                {% if product.photo %}
+                    <img src="{{ product.photo }}" alt="{{ product.name }}">
+                {% else %}
+                    <div class="no-photo">Нет фото</div>
+                {% endif %}
+            </a>
+            <div class="card-body">
+                <div class="category-tag">{{ product.category }} — {{ product.subcategory }}</div>
+                <a href="/product/{{ product.id }}" class="card-title"><h2>{{ product.name }}</h2></a>
+                <p class="desc">{{ product.description }}</p>
+                <p class="price">{{ product.price }} ₽</p>
+                <div class="size-select">
+                    <select id="size-{{ product.id }}">
+                        <option value="XS">XS</option>
+                        <option value="S">S</option>
+                        <option value="M" selected>M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="XXL">XXL</option>
+                    </select>
+                </div>
+                <div class="card-actions">
+                    <a href="#" onclick="addToCart({{ product.id }}); return false;" class="btn">🛒 В корзину</a>
+                    <a href="/favorites/toggle/{{ product.id }}" class="fav-btn {% if product.id in favorites %}active{% endif %}">
+                        {% if product.id in favorites %}❤️{% else %}🤍{% endif %}
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if not products %}
+    <p class="empty">Товаров не найдено</p>
+    {% endif %}
+
+    <script>
+        function addToCart(pid) {
+            const size = document.getElementById("size-" + pid).value;
+            window.location.href = "/cart/add/" + pid + "?size=" + size;
+        }
+    </script>
+</body>
+</html>

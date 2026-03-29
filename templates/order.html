@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Оформление заказа</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="{{ 'dark' if dark else '' }}">
+    <header>
+        <a href="/" style="text-decoration:none; color:inherit;"><h1>📦 Оформление заказа</h1></a>
+        <div class="header-right">
+            <a href="/cart" class="icon-btn">← Назад в корзину</a>
+        </div>
+    </header>
+
+    <div class="order-container">
+        <div class="order-summary">
+            <h2>Ваш заказ</h2>
+            {% for item in items %}
+            <div class="order-item">
+                <span>{{ item.product.name }} ({{ item.size }}) × {{ item.qty }}</span>
+                <span>{{ item.subtotal }} ₽</span>
+            </div>
+            {% endfor %}
+            <div class="order-total">Итого: <strong>{{ total }} ₽</strong></div>
+        </div>
+
+        <div class="form-container">
+            <h2>Данные для доставки</h2>
+            <form method="POST">
+                <label>Имя</label>
+                <input type="text" name="name" placeholder="Ваше имя" required>
+
+                <label>Телефон</label>
+                <input type="tel" name="phone" placeholder="+7 (999) 999-99-99" required>
+
+                <label>Email</label>
+                <input type="email" name="email" placeholder="example@mail.ru" required>
+
+                <label>Адрес доставки</label>
+                <textarea name="address" placeholder="Город, улица, дом, квартира" required></textarea>
+
+                <label>Способ оплаты</label>
+                <select name="payment">
+                    <option>Картой онлайн</option>
+                    <option>Наличными при получении</option>
+                    <option>Картой при получении</option>
+                </select>
+
+                <button type="submit" class="btn" style="width:100%; margin-top:20px; padding:14px; font-size:16px;">
+                    Подтвердить заказ на {{ total }} ₽
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

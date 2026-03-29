@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Мой магазин — {{ user.shop_name }}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="{{ 'dark' if dark else '' }}">
+    <header>
+        <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 Fureoska</h1></a>
+        <div class="header-right">
+            <a href="/toggle-theme" class="icon-btn">{{ '☀️' if dark else '🌙' }}</a>
+            <a href="/cart" class="icon-btn">🛒 {% if cart_count > 0 %}<span class="badge">{{ cart_count }}</span>{% endif %}</a>
+            {% if user.username == 'fureoska' %}
+            <a href="/admin" class="btn" style="background:#1a1a2e;">⚙️ Админка</a>
+            {% endif %}
+            <a href="/logout" class="icon-btn">Выйти</a>
+        </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}">{{ msg }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="profile-avatar seller-avatar">🏪</div>
+        <div class="profile-info">
+            <h1>{{ user.shop_name }}</h1>
+            <p class="profile-username">@{{ user.username }} · <span class="role-badge seller">Продавец</span></p>
+            <p class="profile-desc">{{ user.shop_desc or 'Описание магазина не заполнено' }}</p>
+            <p class="profile-date">На сайте с {{ user.created_at[:10] }}</p>
+        </div>
+        <a href="/profile/edit" class="btn-outline">✏️ Редактировать</a>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-num">{{ products|length }}</div>
+            <div class="stat-label">Товаров</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num">{{ orders_count }}</div>
+            <div class="stat-label">Заказов</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num">{{ "{:,}".format(total_sales).replace(",", " ") }} ₽</div>
+            <div class="stat-label">Продаж</div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="profile-tabs">
+        <button class="ptab active" onclick="showTab('products')">📦 Мои товары</button>
+        <button class="ptab" onclick="showTab('orders')">📋 История заказов</button>
+    </div>
+
+    <!-- Products Tab -->
+    <div id="tab-products" class="tab-content">
+        <div class="tab-header">
+            <h2>Мои товары ({{ products|length }})</h2>
+            <a href="/add" class="btn">+ Добавить товар</a>
+        </div>
+        {% if products %}
+        <div class="grid">
+            {% for product in products %}
+            <div class="card">
+                <a href="/product/{{ product.id }}">
+                    {% if product.photo %}
+                        <img src="{{ product.photo }}" alt="{{ product.name }}">
+                    {% else %}
+                        <div class="no-photo">Нет фото</div>
+                    {% endif %}
+                </a>
+                <div class="card-body">
+                    <div class="category-tag">{{ product.category }} — {{ product.subcategory }}</div>
+                    <h2>{{ product.name }}</h2>
+                    <p class="price">{{ product.price }} ₽</p>
+                    <div class="card-actions">
+                        <a href="/product/{{ product.id }}" class="btn-outline" style="font-size:12px; padding:6px 12px;">Просмотр</a>
+                        <a href="/product/delete/{{ product.id }}" class="remove-btn" onclick="return confirm('Удалить товар?')">🗑️</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty">У вас ещё нет товаров. <a href="/add">Добавьте первый!</a></p>
+        {% endif %}
+    </div>
+
+    <!-- Orders Tab -->
+    <div id="tab-orders" class="tab-content" style="display:none;">
+        <div class="tab-header">
+            <h2>Последние заказы</h2>
+        </div>
+        {% if recent_orders %}
+        <div class="orders-list">
+            {% for o in recent_orders %}
+            <div class="order-card">
+                <div class="order-card-header">
+                    <span><strong>Заказ #{{ o.order_id }}</strong></span>
+                    <span class="order-status">{{ o.status }}</span>
+                    <span class="order-date">{{ o.created_at[:10] }}</span>
+                </div>
+                <div class="order-card-body">
+                    <span>{{ o.product_name }} ({{ o.size }}) × {{ o.qty }}</span>
+                    <span class="price">{{ o.item_price * o.qty }} ₽</span>
+                </div>
+                <div class="order-buyer">👤 {{ o.buyer_name }} · {{ o.phone }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty">Заказов пока нет</p>
+        {% endif %}
+    </div>
+
+    <script>
+        function showTab(name) {
+            document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+            document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + name).style.display = 'block';
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

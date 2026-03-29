@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Админ-панель — Fureoska</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root { --abg:#f0f2f8; --acard:#fff; --atext:#333; --amuted:#888; --aborder:#eee; --ahover:#f9f9f9; }
+        body.dark { --abg:#10101e; --acard:#1a1a2e; --atext:#eee; --amuted:#777; --aborder:#2a2a4a; --ahover:#1e1e36; }
+        body { margin:0; font-family:'Segoe UI',Arial,sans-serif; background:var(--abg); color:var(--atext); }
+        .admin-topbar { position:fixed; top:0; left:0; right:0; z-index:100; height:60px; background:#1a1a2e; display:flex; align-items:center; justify-content:space-between; padding:0 24px; box-shadow:0 2px 12px rgba(0,0,0,.3); }
+        .admin-topbar .logo { display:flex; align-items:center; gap:8px; color:white; font-size:17px; font-weight:bold; text-decoration:none; }
+        .admin-topbar .logo .acc { color:#e44; }
+        .topbar-right { display:flex; align-items:center; gap:10px; }
+        .topbar-right a { color:#ccc; text-decoration:none; font-size:13px; padding:7px 14px; border-radius:8px; background:rgba(255,255,255,.08); transition:all .2s; }
+        .topbar-right a:hover { background:rgba(255,255,255,.16); color:white; }
+        .topbar-user { display:flex; align-items:center; gap:8px; color:white; font-size:13px; }
+        .topbar-avatar { width:32px; height:32px; border-radius:50%; background:#e44; display:flex; align-items:center; justify-content:center; font-size:15px; }
+        .admin-wrap { display:flex; min-height:100vh; padding-top:60px; }
+        .admin-sidebar { width:230px; flex-shrink:0; background:#1a1a2e; position:fixed; top:60px; left:0; bottom:0; overflow-y:auto; z-index:50; }
+        .sidebar-section { padding:20px 18px 8px; font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:#555; font-weight:700; }
+        .admin-nav a { display:flex; align-items:center; gap:12px; padding:11px 20px; color:#8080a0; text-decoration:none; font-size:14px; transition:all .2s; border-left:3px solid transparent; }
+        .admin-nav a:hover { background:rgba(255,255,255,.05); color:#ccc; }
+        .admin-nav a.active { background:rgba(228,68,68,.12); color:#ff7070; border-left-color:#e44; font-weight:600; }
+        .nav-icon { font-size:16px; width:20px; text-align:center; flex-shrink:0; }
+        .nav-badge { margin-left:auto; background:#e44; color:white; border-radius:10px; padding:2px 7px; font-size:11px; }
+        .admin-main { flex:1; margin-left:230px; padding:28px 30px 50px; min-width:0; }
+        .page-hdr { margin-bottom:24px; }
+        .page-hdr h1 { font-size:22px; font-weight:800; margin:0 0 4px; }
+        .page-hdr p { color:var(--amuted); font-size:14px; margin:0; }
+        .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(165px,1fr)); gap:16px; margin-bottom:28px; }
+        .stat-box { background:var(--acard); border-radius:16px; padding:22px; box-shadow:0 2px 12px rgba(0,0,0,.06); position:relative; overflow:hidden; transition:transform .2s,box-shadow .2s; cursor:default; }
+        .stat-box:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.1); }
+        .stat-icon { font-size:28px; margin-bottom:10px; }
+        .stat-val { font-size:28px; font-weight:800; line-height:1; margin-bottom:4px; }
+        .stat-lbl { font-size:12px; color:var(--amuted); }
+        .s-red .stat-val { color:#e44; } .s-blue .stat-val { color:#2196f3; } .s-green .stat-val { color:#4caf50; } .s-purple .stat-val { color:#9c27b0; } .s-orange .stat-val { color:#ff9800; }
+        .qactions { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:28px; }
+        .qbtn { display:inline-flex; align-items:center; gap:8px; padding:10px 20px; border-radius:10px; text-decoration:none; font-size:14px; font-weight:600; transition:all .2s; }
+        .qbtn.pr { background:#e44; color:white; } .qbtn.pr:hover { background:#c33; }
+        .qbtn.sc { background:var(--acard); color:var(--atext); border:1.5px solid var(--aborder); } .qbtn.sc:hover { background:var(--ahover); }
+        .tcard { background:var(--acard); border-radius:16px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,.06); }
+        .tcard-hdr { display:flex; justify-content:space-between; align-items:center; padding:18px 22px; border-bottom:1px solid var(--aborder); flex-wrap:wrap; gap:10px; }
+        .tcard-hdr h2 { font-size:16px; font-weight:700; margin:0; }
+        .asearch input { padding:8px 14px; border:1px solid var(--aborder); border-radius:8px; font-size:13px; background:var(--abg); color:var(--atext); width:200px; outline:none; transition:border .2s; }
+        .asearch input:focus { border-color:#e44; }
+        body.dark .asearch input { background:#0e0e22; }
+        .atable { width:100%; border-collapse:collapse; font-size:14px; }
+        .atable th { background:var(--abg); padding:11px 16px; text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--amuted); font-weight:700; border-bottom:1px solid var(--aborder); }
+        .atable td { padding:12px 16px; border-bottom:1px solid var(--aborder); vertical-align:middle; }
+        .atable tr:last-child td { border-bottom:none; }
+        .atable tbody tr:hover td { background:var(--ahover); }
+        .br { padding:4px 10px; border-radius:20px; font-size:11px; font-weight:700; }
+        .br-admin { background:#fce4ec; color:#c62828; } .br-seller { background:#fff3e0; color:#e65100; } .br-buyer { background:#e8f4fd; color:#1565c0; }
+        body.dark .br-admin { background:#3a0a0a; color:#ff8080; } body.dark .br-seller { background:#2a1500; color:#ffb060; } body.dark .br-buyer { background:#0a1a2a; color:#70b8ff; }
+        .sbadge { padding:4px 10px; border-radius:20px; font-size:11px; font-weight:600; }
+        .s-new { background:#e3f2fd; color:#1565c0; } .s-proc { background:#fff8e1; color:#f57f17; } .s-sent { background:#e8f5e9; color:#2e7d32; } .s-done { background:#e8f5e9; color:#1b5e20; } .s-cancel { background:#fce4ec; color:#b71c1c; }
+        .abtn { padding:5px 12px; border-radius:7px; font-size:12px; text-decoration:none; border:none; cursor:pointer; display:inline-block; font-weight:600; transition:all .15s; }
+        .ab-edit { background:#e3f2fd; color:#1565c0; } .ab-edit:hover { background:#bbdefb; }
+        .ab-del { background:#fce4ec; color:#b71c1c; } .ab-del:hover { background:#ffcdd2; }
+        body.dark .ab-edit { background:#0a1a2a; color:#70b8ff; } body.dark .ab-del { background:#2a0a0a; color:#ff7070; }
+        .ifrm { display:inline-flex; gap:5px; align-items:center; }
+        .ifrm select { padding:5px 9px; border:1px solid var(--aborder); border-radius:7px; font-size:12px; background:var(--acard); color:var(--atext); }
+        .ifrm button { padding:5px 11px; border:none; border-radius:7px; background:#e44; color:white; cursor:pointer; font-size:12px; font-weight:600; }
+        .ifrm button:hover { background:#c33; }
+        .pthumb { width:46px; height:46px; object-fit:cover; border-radius:10px; }
+        .nothumb { width:46px; height:46px; background:var(--abg); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; }
+        .oi-row td { background:var(--abg); padding:8px 16px 14px 36px; }
+        .oi-line { font-size:13px; color:var(--amuted); padding:3px 0; }
+        .aform { background:var(--acard); border-radius:16px; padding:28px; box-shadow:0 2px 12px rgba(0,0,0,.06); max-width:580px; }
+        .aform label { display:block; margin:14px 0 5px; font-weight:600; font-size:14px; }
+        .aform input,.aform select,.aform textarea { width:100%; padding:10px 13px; border:1.5px solid var(--aborder); border-radius:9px; font-size:14px; background:var(--abg); color:var(--atext); outline:none; transition:border .2s; }
+        .aform input:focus,.aform select:focus,.aform textarea:focus { border-color:#e44; }
+        .aform textarea { height:100px; resize:vertical; }
+        .factions { display:flex; gap:10px; margin-top:22px; }
+        .dash-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+        @media(max-width:900px){.dash-grid{grid-template-columns:1fr;}}
+        .dcard { background:var(--acard); border-radius:16px; padding:22px; box-shadow:0 2px 12px rgba(0,0,0,.06); }
+        .dcard h3 { font-size:15px; font-weight:700; margin:0 0 16px; }
+        .mlist { list-style:none; margin:0; padding:0; }
+        .mlist li { display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid var(--aborder); font-size:14px; }
+        .mlist li:last-child { border-bottom:none; }
+        .ml-name { font-weight:600; } .ml-sub { color:var(--amuted); font-size:12px; } .ml-val { font-weight:800; color:#e44; font-size:15px; }
+        .flash { padding:12px 24px; font-size:14px; } .flash-success { background:#f0fff4; border-left:4px solid #4caf50; color:#1b5e20; } .flash-error { background:#fff0f0; border-left:4px solid #e44; color:#a00; }
+        body.dark .flash-success { background:#0a2e1a; color:#5ddd8c; } body.dark .flash-error { background:#2a0a0a; color:#ff7777; }
+        .empty-s { text-align:center; padding:50px 20px; color:var(--amuted); }
+        .empty-s .ei { font-size:50px; margin-bottom:12px; }
+    </style>
+</head>
+<body class="{{ 'dark' if dark else '' }}">
+<div class="admin-topbar">
+    <a href="/" class="logo">👗 <span class="acc">Fureoska</span> <span style="color:#555;font-size:12px;font-weight:400;">/ Панель</span></a>
+    <div class="topbar-right">
+        <a href="/toggle-theme">{{ '☀️ Светлая' if dark else '🌙 Тёмная' }}</a>
+        <a href="/">🏪 На сайт</a>
+        <a href="/logout">Выйти</a>
+        <div class="topbar-user"><div class="topbar-avatar">👑</div><span>fureosk</span></div>
+    </div>
+</div>
+{% with messages = get_flashed_messages(with_categories=true) %}{% for cat,msg in messages %}<div class="flash flash-{{ cat }}">{{ msg }}</div>{% endfor %}{% endwith %}
+<div class="admin-wrap">
+    <aside class="admin-sidebar">
+        <div class="sidebar-section">Навигация</div>
+        <nav class="admin-nav">
+            <a href="/admin" class="{{ 'active' if section=='dashboard' else '' }}"><span class="nav-icon">📊</span>Дашборд</a>
+            <a href="/admin/users" class="{{ 'active' if section=='users' else '' }}"><span class="nav-icon">👥</span>Пользователи<span class="nav-badge">{{ stats.users }}</span></a>
+            <a href="/admin/products" class="{{ 'active' if section in ('products','product_edit') else '' }}"><span class="nav-icon">📦</span>Товары<span class="nav-badge">{{ stats.products }}</span></a>
+            <a href="/admin/orders" class="{{ 'active' if section=='orders' else '' }}"><span class="nav-icon">🧾</span>Заказы<span class="nav-badge">{{ stats.orders }}</span></a>
+        </nav>
+        <div class="sidebar-section" style="margin-top:10px;">Инструменты</div>
+        <nav class="admin-nav">
+            <a href="/add"><span class="nav-icon">➕</span>Добавить товар</a>
+            <a href="/"><span class="nav-icon">🏠</span>Главная</a>
+        </nav>
+    </aside>
+    <main class="admin-main">
+
+    {% if section=='dashboard' %}
+    <div class="page-hdr"><h1>📊 Дашборд</h1><p>Обзор магазина — всё под контролем</p></div>
+    <div class="stat-grid">
+        <div class="stat-box s-red"><div class="stat-icon">👥</div><div class="stat-val">{{ stats.users }}</div><div class="stat-lbl">Пользователей</div></div>
+        <div class="stat-box s-blue"><div class="stat-icon">🏪</div><div class="stat-val">{{ stats.sellers }}</div><div class="stat-lbl">Продавцов</div></div>
+        <div class="stat-box s-green"><div class="stat-icon">📦</div><div class="stat-val">{{ stats.products }}</div><div class="stat-lbl">Товаров</div></div>
+        <div class="stat-box s-purple"><div class="stat-icon">🧾</div><div class="stat-val">{{ stats.orders }}</div><div class="stat-lbl">Заказов</div></div>
+        <div class="stat-box s-orange"><div class="stat-icon">💰</div><div class="stat-val">{{ "{:,}".format(stats.revenue).replace(",", " ") }} ₽</div><div class="stat-lbl">Выручка</div></div>
+    </div>
+    <div class="qactions">
+        <a href="/admin/users" class="qbtn pr">👥 Пользователи</a>
+        <a href="/admin/products" class="qbtn sc">📦 Товары</a>
+        <a href="/admin/orders" class="qbtn sc">🧾 Заказы</a>
+        <a href="/add" class="qbtn sc">➕ Добавить товар</a>
+    </div>
+    <div class="dash-grid">
+        <div class="dcard">
+            <h3>🧾 Последние заказы</h3>
+            {% if recent_orders %}<ul class="mlist">
+            {% for o in recent_orders %}<li><div><div class="ml-name">#{{ o.id }} — {{ o.buyer_name }}</div><div class="ml-sub">{{ o.created_at[:10] }}</div></div><div style="text-align:right"><div class="ml-val">{{ o.total }} ₽</div><span class="sbadge s-new">{{ o.status }}</span></div></li>{% endfor %}
+            </ul>{% else %}<div class="empty-s"><div class="ei">🧾</div><p>Заказов нет</p></div>{% endif %}
+        </div>
+        <div class="dcard">
+            <h3>👥 Новые пользователи</h3>
+            {% if recent_users %}<ul class="mlist">
+            {% for u in recent_users %}<li><div><div class="ml-name">{{ u.username }}</div><div class="ml-sub">{{ u.email }}</div></div><span class="br br-{{ u.role }}">{% if u.role=='admin' %}👑{% elif u.role=='seller' %}🏪{% else %}🛍️{% endif %} {{ 'Админ' if u.role=='admin' else 'Продавец' if u.role=='seller' else 'Покупатель' }}</span></li>{% endfor %}
+            </ul>{% else %}<div class="empty-s"><div class="ei">👥</div><p>Нет данных</p></div>{% endif %}
+        </div>
+    </div>
+
+    {% elif section=='users' %}
+    <div class="page-hdr"><h1>👥 Пользователи</h1><p>{{ stats.users }} всего · {{ stats.sellers }} продавцов · {{ stats.buyers }} покупателей</p></div>
+    <div class="tcard">
+        <div class="tcard-hdr"><h2>Все пользователи ({{ users|length }})</h2><div class="asearch"><input type="text" placeholder="🔍 Поиск..." oninput="filterTable('uT',this.value)"></div></div>
+        <table class="atable" id="uT">
+            <thead><tr><th>#</th><th>Логин</th><th>Email</th><th>Роль</th><th>Магазин</th><th>Дата</th><th>Действия</th></tr></thead>
+            <tbody>{% for u in users %}<tr>
+                <td style="color:var(--amuted);font-size:12px">{{ u.id }}</td>
+                <td><strong>{{ u.username }}</strong></td>
+                <td style="color:var(--amuted)">{{ u.email }}</td>
+                <td><span class="br br-{{ u.role }}">{% if u.role=='admin' %}👑 Админ{% elif u.role=='seller' %}🏪 Продавец{% else %}🛍️ Покупатель{% endif %}</span></td>
+                <td>{{ u.shop_name or '—' }}</td>
+                <td style="color:var(--amuted);font-size:12px">{{ u.created_at[:10] }}</td>
+                <td><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+                    <form method="POST" action="/admin/users/role/{{ u.id }}" class="ifrm">
+                        <select name="role"><option value="buyer" {% if u.role=='buyer' %}selected{% endif %}>🛍️ Покупатель</option><option value="seller" {% if u.role=='seller' %}selected{% endif %}>🏪 Продавец</option><option value="admin" {% if u.role=='admin' %}selected{% endif %}>👑 Админ</option></select>
+                        <button type="submit">✓</button>
+                    </form>
+                    {% if u.role != 'admin' %}<a href="/admin/users/delete/{{ u.id }}" onclick="return confirm('Удалить {{ u.username }}?')" class="abtn ab-del">✕ Удалить</a>{% endif %}
+                </div></td>
+            </tr>{% endfor %}</tbody>
+        </table>
+    </div>
+
+    {% elif section=='products' %}
+    <div class="page-hdr"><h1>📦 Товары</h1><p>Каталог: {{ stats.products }} товаров</p></div>
+    <div class="tcard">
+        <div class="tcard-hdr"><h2>Все товары ({{ products|length }})</h2>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                <div class="asearch"><input type="text" placeholder="🔍 Поиск..." oninput="filterTable('pT',this.value)"></div>
+                <a href="/add" class="abtn ab-edit" style="padding:8px 14px">➕ Добавить</a>
+            </div>
+        </div>
+        <table class="atable" id="pT">
+            <thead><tr><th>#</th><th>Фото</th><th>Название</th><th>Цена</th><th>Категория</th><th>Продавец</th><th>Действия</th></tr></thead>
+            <tbody>{% for p in products %}<tr>
+                <td style="color:var(--amuted);font-size:12px">{{ p.id }}</td>
+                <td>{% if p.photo %}<img src="{{ p.photo }}" class="pthumb">{% else %}<div class="nothumb">🧥</div>{% endif %}</td>
+                <td><strong>{{ p.name }}</strong><br><span style="color:var(--amuted);font-size:12px">{{ (p.description or '')[:45] }}{% if p.description and p.description|length > 45 %}...{% endif %}</span></td>
+                <td><strong style="color:#e44">{{ p.price }} ₽</strong></td>
+                <td><span class="br br-buyer" style="font-weight:500">{{ p.category }}</span><br><span style="color:var(--amuted);font-size:12px">{{ p.subcategory }}</span></td>
+                <td>{{ p.seller_name or '—' }}</td>
+                <td><div style="display:flex;gap:6px">
+                    <a href="/admin/products/edit/{{ p.id }}" class="abtn ab-edit">✏️ Изм.</a>
+                    <a href="/admin/products/delete/{{ p.id }}" onclick="return confirm('Удалить «{{ p.name }}»?')" class="abtn ab-del">✕</a>
+                </div></td>
+            </tr>{% endfor %}</tbody>
+        </table>
+    </div>
+
+    {% elif section=='product_edit' %}
+    <div class="page-hdr"><h1>✏️ Редактировать товар</h1><p><a href="/admin/products" style="color:#e44">← Назад к товарам</a></p></div>
+    <div class="aform">
+        {% if product.photo %}<img src="{{ product.photo }}" style="width:100%;max-height:220px;object-fit:cover;border-radius:12px;margin-bottom:18px">{% endif %}
+        <form method="POST">
+            <label>Название</label><input type="text" name="name" value="{{ product.name }}" required>
+            <label>Цена (₽)</label><input type="number" name="price" value="{{ product.price }}" required>
+            <label>Категория</label><select name="category" id="cat" onchange="updateSubs()">{% for cat in subcategories.keys() %}<option {% if product.category==cat %}selected{% endif %}>{{ cat }}</option>{% endfor %}</select>
+            <label>Подкатегория</label><select name="subcategory" id="sub">{% for sub in subcategories.get(product.category,[]) %}<option {% if product.subcategory==sub %}selected{% endif %}>{{ sub }}</option>{% endfor %}</select>
+            <label>Описание</label><textarea name="description">{{ product.description }}</textarea>
+            <div class="factions"><button type="submit" class="qbtn pr">💾 Сохранить</button><a href="/admin/products" class="qbtn sc">Отмена</a></div>
+        </form>
+    </div>
+
+    {% elif section=='orders' %}
+    <div class="page-hdr"><h1>🧾 Заказы</h1><p>Всего: {{ stats.orders }} · Выручка: {{ "{:,}".format(stats.revenue).replace(",", " ") }} ₽</p></div>
+    <div class="tcard">
+        <div class="tcard-hdr"><h2>Все заказы ({{ orders|length }})</h2><div class="asearch"><input type="text" placeholder="🔍 Поиск..." oninput="filterTable('oT',this.value)"></div></div>
+        {% if orders %}
+        <table class="atable" id="oT">
+            <thead><tr><th>#</th><th>Покупатель</th><th>Телефон</th><th>Сумма</th><th>Оплата</th><th>Статус</th><th>Дата</th><th>Позиции</th></tr></thead>
+            <tbody>{% for entry in orders %}<tr>
+                <td><strong>#{{ entry.order.id }}</strong></td>
+                <td><strong>{{ entry.order.buyer_name }}</strong><br><span style="color:var(--amuted);font-size:12px">{{ entry.order.email }}</span></td>
+                <td style="font-size:13px">{{ entry.order.phone }}</td>
+                <td><strong style="color:#e44;font-size:16px">{{ entry.order.total }} ₽</strong></td>
+                <td style="font-size:12px;color:var(--amuted)">{{ entry.order.payment }}</td>
+                <td><form method="POST" action="/admin/orders/status/{{ entry.order.id }}" class="ifrm"><select name="status">{% for s in ['Новый','В обработке','Отправлен','Доставлен','Отменён'] %}<option {% if entry.order.status==s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select><button type="submit">✓</button></form></td>
+                <td style="color:var(--amuted);font-size:12px">{{ entry.order.created_at[:10] }}</td>
+                <td><button class="abtn ab-edit" onclick="toggleItems({{ entry.order.id }})">📋 {{ entry.lines|length }} поз.</button></td>
+            </tr>
+            <tr class="oi-row" id="oi-{{ entry.order.id }}" style="display:none"><td colspan="8">{% for line in entry.lines %}<div class="oi-line">• {{ line.product_name }} ({{ line.size }}) × {{ line.qty }} = <strong>{{ line.price * line.qty }} ₽</strong></div>{% endfor %}<div style="margin-top:8px;font-size:12px;color:var(--amuted)">📍 {{ entry.order.address }}</div></td></tr>
+            {% endfor %}</tbody>
+        </table>
+        {% else %}<div class="empty-s"><div class="ei">🧾</div><p>Заказов пока нет</p></div>{% endif %}
+    </div>
+    {% endif %}
+
+    </main>
+</div>
+<script>
+const subcats={{ subcategories|tojson if subcategories else '{}' }};
+function updateSubs(){const c=document.getElementById('cat'),s=document.getElementById('sub');if(!c||!s)return;const cur=s.value;s.innerHTML='';(subcats[c.value]||[]).forEach(v=>{const o=document.createElement('option');o.value=o.textContent=v;if(v===cur)o.selected=true;s.appendChild(o);});}
+function filterTable(id,q){const lq=q.toLowerCase();document.querySelectorAll('#'+id+' tbody tr').forEach(r=>{if(r.classList.contains('oi-row'))return;r.style.display=r.textContent.toLowerCase().includes(lq)?'':'none';});}
+function toggleItems(id){const r=document.getElementById('oi-'+id);r.style.display=r.style.display==='none'?'':' none';}
+</script>
+</body>
+</html>

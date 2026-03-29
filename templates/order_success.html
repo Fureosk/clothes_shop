@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Заказ оформлен!</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="{{ 'dark' if dark else '' }}">
+    <header>
+        <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 Магазин одежды</h1></a>
+    </header>
+
+    <div class="success-page">
+        <div class="success-box">
+            <div style="font-size: 80px;">✅</div>
+            <h1>Заказ оформлен!</h1>
+            <p>Спасибо, <strong>{{ name }}</strong>! Ваш заказ принят и скоро будет обработан.</p>
+            <a href="/" class="btn" style="margin-top: 20px; display: inline-block;">← Вернуться в магазин</a>
+        </div>
+    </div>
+</body>
+</html>
