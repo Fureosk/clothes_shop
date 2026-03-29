@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Админ-панель — Fureoska</title>
     <link rel="stylesheet" href="/static/style.css">
     <style>
@@ -73,7 +75,74 @@
         .aform textarea { height:100px; resize:vertical; }
         .factions { display:flex; gap:10px; margin-top:22px; }
         .dash-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-        @media(max-width:900px){.dash-grid{grid-template-columns:1fr;}}
+
+        /* ── Hamburger button ── */
+        .sidebar-toggle {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 38px; height: 38px;
+            background: rgba(255,255,255,.1);
+            border: none; border-radius: 8px;
+            cursor: pointer; color: white; font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        /* ── Overlay ── */
+        .sidebar-overlay {
+            display: none;
+            position: fixed; inset: 0; z-index: 49;
+            background: rgba(0,0,0,.45);
+        }
+        .sidebar-overlay.open { display: block; }
+
+        /* ── Responsive breakpoints ── */
+        @media(max-width:900px) {
+            .dash-grid { grid-template-columns: 1fr; }
+        }
+
+        @media(max-width:768px) {
+            .sidebar-toggle { display: flex; }
+
+            .admin-sidebar {
+                transform: translateX(-100%);
+                transition: transform .25s ease;
+                z-index: 200;
+            }
+            .admin-sidebar.open { transform: translateX(0); }
+
+            .admin-main { margin-left: 0; padding: 20px 16px 40px; }
+
+            .admin-topbar { padding: 0 14px; gap: 8px; }
+            .topbar-right a { padding: 6px 10px; font-size: 12px; }
+            .topbar-right a:nth-child(-n+2) { display: none; } /* скрываем менее важные */
+
+            .stat-grid { grid-template-columns: repeat(2, 1fr); }
+
+            .tcard-hdr { flex-direction: column; align-items: flex-start; }
+            .asearch input { width: 100%; }
+
+            .atable { font-size: 12px; }
+            .atable th, .atable td { padding: 8px 10px; }
+
+            /* Скрываем второстепенные колонки в таблицах */
+            .atable .col-hide { display: none; }
+
+            .qactions { gap: 8px; }
+            .qbtn { padding: 8px 14px; font-size: 13px; }
+
+            .aform { padding: 20px 16px; }
+            .factions { flex-wrap: wrap; }
+        }
+
+        @media(max-width:480px) {
+            .admin-topbar .logo span:last-child { display: none; }
+            .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .stat-box { padding: 16px 14px; }
+            .stat-val { font-size: 22px; }
+            .admin-main { padding: 14px 12px 30px; }
+            .page-hdr h1 { font-size: 18px; }
+        }
         .dcard { background:var(--acard); border-radius:16px; padding:22px; box-shadow:0 2px 12px rgba(0,0,0,.06); }
         .dcard h3 { font-size:15px; font-weight:700; margin:0 0 16px; }
         .mlist { list-style:none; margin:0; padding:0; }
@@ -88,6 +157,7 @@
 </head>
 <body class="{{ 'dark' if dark else '' }}">
 <div class="admin-topbar">
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Меню">☰</button>
     <a href="/" class="logo">👗 <span class="acc">Fureoska</span> <span style="color:#555;font-size:12px;font-weight:400;">/ Панель</span></a>
     <div class="topbar-right">
         <a href="/toggle-theme">{{ '☀️ Светлая' if dark else '🌙 Тёмная' }}</a>
@@ -97,8 +167,9 @@
     </div>
 </div>
 {% with messages = get_flashed_messages(with_categories=true) %}{% for cat,msg in messages %}<div class="flash flash-{{ cat }}">{{ msg }}</div>{% endfor %}{% endwith %}
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 <div class="admin-wrap">
-    <aside class="admin-sidebar">
+    <aside class="admin-sidebar" id="adminSidebar">
         <div class="sidebar-section">Навигация</div>
         <nav class="admin-nav">
             <a href="/admin" class="{{ 'active' if section=='dashboard' else '' }}"><span class="nav-icon">📊</span>Дашборд</a>
@@ -238,7 +309,13 @@
 const subcats={{ subcategories|tojson if subcategories else '{}' }};
 function updateSubs(){const c=document.getElementById('cat'),s=document.getElementById('sub');if(!c||!s)return;const cur=s.value;s.innerHTML='';(subcats[c.value]||[]).forEach(v=>{const o=document.createElement('option');o.value=o.textContent=v;if(v===cur)o.selected=true;s.appendChild(o);});}
 function filterTable(id,q){const lq=q.toLowerCase();document.querySelectorAll('#'+id+' tbody tr').forEach(r=>{if(r.classList.contains('oi-row'))return;r.style.display=r.textContent.toLowerCase().includes(lq)?'':'none';});}
-function toggleItems(id){const r=document.getElementById('oi-'+id);r.style.display=r.style.display==='none'?'':' none';}
+function toggleItems(id){const r=document.getElementById('oi-'+id);r.style.display=r.style.display==='none'?'':'none';}
+function toggleSidebar(){
+    const sidebar=document.getElementById('adminSidebar');
+    const overlay=document.getElementById('sidebarOverlay');
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('open');
+}
 </script>
 </body>
 </html>

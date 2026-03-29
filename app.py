@@ -6,10 +6,12 @@ from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = "clothes_shop_secret_2024"
-UPLOAD_FOLDER = "static/uploads"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB = os.path.join(BASE_DIR, "shop.db")
 
-DB = "shop.db"
+UPLOAD_FOLDER = os.path.join(BASE_DIR, "static/uploads")
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 def get_db():
     conn = sqlite3.connect(DB)
