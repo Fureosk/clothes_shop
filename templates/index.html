@@ -3,74 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Магазин одежды Fureoska</title>
+    <title>{{ 'Fureoska Clothing Store' if lang == 'en' else 'Магазин одежды Fureoska' }}</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body class="{{ 'dark' if dark else '' }}">
     <header>
-        <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 Магазин одежды Fureoska</h1></a>
+        <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 {{ 'Fureoska Clothing Store' if lang == 'en' else 'Магазин одежды Fureoska' }}</h1></a>
         <div class="header-right">
-            <form method="GET" action="/" class="search-form">
-                <input type="text" name="search" placeholder="🔍 Поиск..." value="{{ search }}">
+            <form method="GET" action="/shop" class="search-form">
+                <input type="text" name="search" placeholder="{{ '🔍 Search...' if lang == 'en' else '🔍 Поиск...' }}" value="{{ search }}">
                 <input type="hidden" name="category" value="{{ current }}">
                 <input type="hidden" name="subcategory" value="{{ subcategory }}">
-                <button type="submit">Найти</button>
+                <button type="submit">{{ 'Search' if lang == 'en' else 'Найти' }}</button>
             </form>
             <a href="/toggle-theme" class="icon-btn">{{ '☀️' if dark else '🌙' }}</a>
+            <a href="/set-lang/{{ 'ru' if lang == 'en' else 'en' }}" class="icon-btn" title="{{ 'Switch language' if lang == 'en' else 'Сменить язык' }}">{{ '🇬🇧 EN' if lang == 'ru' else '🇷🇺 RU' }}</a>
             {% if user %}
                 <a href="/profile" class="icon-btn">👤 {{ user.username }}</a>
             {% else %}
-                <a href="/login" class="icon-btn">Войти</a>
-                <a href="/register" class="icon-btn">Регистрация</a>
+                <a href="/login" class="icon-btn">{{ 'Login' if lang == 'en' else 'Войти' }}</a>
+                <a href="/register" class="icon-btn">{{ 'Register' if lang == 'en' else 'Регистрация' }}</a>
             {% endif %}
             <a href="/favorites" class="icon-btn">❤️</a>
             <a href="/cart" class="icon-btn">🛒 {% if cart_count > 0 %}<span class="badge">{{ cart_count }}</span>{% endif %}</a>
             {% if user and user.role in ('seller','admin') %}
-            <a href="/add" class="btn">+ Добавить</a>
+            <a href="/add" class="btn">{{ '+ Add' if lang == 'en' else '+ Добавить' }}</a>
             {% endif %}
         </div>
     </header>
 
     <!-- CATEGORY CARDS NAV -->
     <div class="cat-nav">
-        <a href="/?category=Все" class="cat-card {% if current == 'Все' %}active{% endif %}">
+        <a href="/shop?category=Все" class="cat-card {% if current == 'Все' %}active{% endif %}">
             <div class="cat-icon">✨</div>
-            <div class="cat-name">Все</div>
-            <div class="cat-desc">Весь каталог</div>
+            <div class="cat-name">{{ 'All' if lang == 'en' else 'Все' }}</div>
+            <div class="cat-desc">{{ 'Full catalog' if lang == 'en' else 'Весь каталог' }}</div>
         </a>
-        <a href="/?category=Мужская" class="cat-card {% if current == 'Мужская' %}active{% endif %}">
+        <a href="/shop?category=Мужская" class="cat-card {% if current == 'Мужская' %}active{% endif %}">
             <div class="cat-icon">👔</div>
-            <div class="cat-name">Мужская</div>
-            <div class="cat-desc">Одежда и обувь</div>
+            <div class="cat-name">{{ "Men's" if lang == 'en' else 'Мужская' }}</div>
+            <div class="cat-desc">{{ 'Clothes and shoes' if lang == 'en' else 'Одежда и обувь' }}</div>
         </a>
-        <a href="/?category=Женская" class="cat-card {% if current == 'Женская' %}active{% endif %}">
+        <a href="/shop?category=Женская" class="cat-card {% if current == 'Женская' %}active{% endif %}">
             <div class="cat-icon">👗</div>
-            <div class="cat-name">Женская</div>
-            <div class="cat-desc">Стильные образы</div>
+            <div class="cat-name">{{ "Women's" if lang == 'en' else 'Женская' }}</div>
+            <div class="cat-desc">{{ 'Stylish looks' if lang == 'en' else 'Стильные образы' }}</div>
         </a>
-        <a href="/?category=Детская" class="cat-card {% if current == 'Детская' %}active{% endif %}">
+        <a href="/shop?category=Детская" class="cat-card {% if current == 'Детская' %}active{% endif %}">
             <div class="cat-icon">🧒</div>
-            <div class="cat-name">Детская</div>
-            <div class="cat-desc">Для малышей и детей</div>
+            <div class="cat-name">{{ "Children's" if lang == 'en' else 'Детская' }}</div>
+            <div class="cat-desc">{{ 'For kids of all ages' if lang == 'en' else 'Для малышей и детей' }}</div>
         </a>
     </div>
 
     {% if subcats %}
     <div class="subnav">
-        <a href="/?category={{ current }}&subcategory=Все" class="subtab {% if subcategory == 'Все' %}active{% endif %}">Все</a>
+        <a href="/shop?category={{ current }}&subcategory=Все" class="subtab {% if subcategory == 'Все' %}active{% endif %}">{{ 'All' if lang == 'en' else 'Все' }}</a>
         {% for sub in subcats %}
-        <a href="/?category={{ current }}&subcategory={{ sub }}" class="subtab {% if subcategory == sub %}active{% endif %}">{{ sub }}</a>
+        <a href="/shop?category={{ current }}&subcategory={{ sub }}" class="subtab {% if subcategory == sub %}active{% endif %}">{{ sub }}</a>
         {% endfor %}
     </div>
     {% endif %}
 
     <div class="toolbar">
-        <span class="results-count">Найдено: {{ products|length }} товаров</span>
+        <span class="results-count">{{ 'Found:' if lang == 'en' else 'Найдено:' }} {{ products|length }} {{ 'items' if lang == 'en' else 'товаров' }}</span>
         <div class="sort-btns">
-            <span>Сортировка:</span>
-            <a href="?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&sort=asc" class="sort-btn {% if sort == 'asc' %}active{% endif %}">↑ Дешевле</a>
-            <a href="?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&sort=desc" class="sort-btn {% if sort == 'desc' %}active{% endif %}">↓ Дороже</a>
-            {% if sort %}<a href="?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}" class="sort-btn">✕ Сброс</a>{% endif %}
+            <span>{{ 'Sort:' if lang == 'en' else 'Сортировка:' }}</span>
+            <a href="/shop?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&sort=asc" class="sort-btn {% if sort == 'asc' %}active{% endif %}">↑ {{ 'Cheaper' if lang == 'en' else 'Дешевле' }}</a>
+            <a href="/shop?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&sort=desc" class="sort-btn {% if sort == 'desc' %}active{% endif %}">↓ {{ 'Pricier' if lang == 'en' else 'Дороже' }}</a>
+            {% if sort %}<a href="/shop?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}" class="sort-btn">✕ {{ 'Reset' if lang == 'en' else 'Сброс' }}</a>{% endif %}
         </div>
     </div>
 
@@ -106,7 +107,7 @@
                     </select>
                 </div>
                 <div class="card-actions">
-                    <a href="#" onclick="addToCart({{ product.id }}); return false;" class="btn">🛒 В корзину</a>
+                    <a href="#" onclick="addToCart({{ product.id }}); return false;" class="btn">🛒 {{ 'Add to cart' if lang == 'en' else 'В корзину' }}</a>
                     <a href="/favorites/toggle/{{ product.id }}" class="fav-btn {% if product.id in favorites %}active{% endif %}">
                         {% if product.id in favorites %}❤️{% else %}🤍{% endif %}
                     </a>
@@ -117,7 +118,7 @@
     </div>
 
     {% if not products %}
-    <p class="empty">Товаров не найдено</p>
+    <p class="empty">{{ 'No products found' if lang == 'en' else 'Товаров не найдено' }}</p>
     {% endif %}
 
     <script>

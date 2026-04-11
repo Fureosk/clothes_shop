@@ -161,6 +161,9 @@ def get_cart_count():
 def get_dark():
     return session.get("dark",False)
 
+def get_lang():
+    return session.get("lang","ru")
+
 def get_product(pid):
     conn = get_db()
     p = conn.execute("SELECT * FROM products WHERE id=?",(pid,)).fetchone()
@@ -223,7 +226,7 @@ def login():
 
 @app.route("/logout")
 def logout():
-    session.pop("user_id",None); return redirect(url_for("home"))
+    session.pop("user_id",None); return redirect(url_for("landing"))
 
 # PROFILE
 @app.route("/profile")
@@ -285,8 +288,19 @@ def product_delete(pid):
     conn.commit(); conn.close()
     flash("Товар удалён","success"); return redirect(url_for("profile"))
 
-# MAIN
+# LANDING PAGE
 @app.route("/")
+def landing():
+    return render_template("welcome.html", user=current_user(), lang=get_lang())
+
+@app.route("/set-lang/<lang_code>")
+def set_lang(lang_code):
+    if lang_code in ("ru","en"):
+        session["lang"] = lang_code
+    return redirect(request.referrer or url_for("landing"))
+
+# MAIN SHOP
+@app.route("/shop")
 def home():
     category    = request.args.get("category","Все")
     subcategory = request.args.get("subcategory","Все")
@@ -303,7 +317,7 @@ def home():
     return render_template("index.html",products=products_list,current=category,
         subcategory=subcategory,subcats=SUBCATEGORIES.get(category,[]) if category!="Все" else [],
         search=search,favorites=get_favorites_ids(),cart_count=get_cart_count(),
-        sort=sort,dark=get_dark(),user=current_user())
+        sort=sort,dark=get_dark(),user=current_user(),lang=get_lang())
 
 @app.route("/toggle-theme")
 def toggle_theme():
