@@ -11,7 +11,7 @@
         <a href="/" style="text-decoration:none; color:inherit;"><h1>🛒 Корзина</h1></a>
         <div class="header-right">
             <a href="/toggle-theme" class="icon-btn">{{ '☀️' if dark else '🌙' }}</a>
-            <a href="/" class="icon-btn">← Назад</a>
+            <a href="javascript:history.back()" class="icon-btn">← Назад</a>
         </div>
     </header>
 
@@ -26,6 +26,11 @@
                 <h2>{{ item.product.name }}</h2>
                 <p class="category-tag">{{ item.product.category }} — {{ item.product.subcategory }}</p>
                 <p>Размер: <strong>{{ item.size }}</strong></p>
+                <div class="qty-controls">
+                    <a href="/cart/update/{{ item.key }}?qty={{ item.qty - 1 }}" class="qty-btn">−</a>
+                    <span class="qty-num">{{ item.qty }}</span>
+                    <a href="/cart/update/{{ item.key }}?qty={{ item.qty + 1 }}" class="qty-btn">+</a>
+                </div>
                 <p class="price">{{ item.product.price }} ₽ × {{ item.qty }} = <strong>{{ item.subtotal }} ₽</strong></p>
             </div>
             <a href="/cart/remove/{{ item.key }}" class="remove-btn">✕</a>

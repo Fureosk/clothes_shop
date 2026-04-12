@@ -174,6 +174,70 @@ def admin_required():
     user = current_user()
     return user and user["role"] == "admin"
 
+# ──────────────────────────────────────────────
+# EMAIL-УВЕДОМЛЕНИЯ
+# Заполните эти строки и письма начнут приходить
+SMTP_HOST     = "smtp.gmail.com"
+SMTP_PORT     = 587
+SMTP_USER     = "fureoskwork@gmail.com"       # ← ваш gmail
+SMTP_PASSWORD = "mzhz cahr udkq qinu" # ← пароль приложения из Google
+ADMIN_EMAIL   = "fureoskwork@gmail.com"       # ← куда приходят уведомления вам
+# ──────────────────────────────────────────────
+
+def send_email(to, subject, body):
+    import smtplib
+    from email.mime.text import MIMEText
+    try:
+        msg = MIMEText(body, "plain", "utf-8")
+        msg["Subject"] = subject
+        msg["From"]    = SMTP_USER
+        msg["To"]      = to
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=10) as s:
+            s.starttls()
+            s.login(SMTP_USER, SMTP_PASSWORD)
+            s.send_message(msg)
+    except Exception as e:
+        app.logger.error(f"[email] Ошибка отправки на {to}: {e}")
+
+def notify_order(order_id, buyer_name, buyer_email, phone, address, payment, total, items, sellers_info):
+    lines = "\n".join(
+        f"  • {it['product']['name']} ({it['size']}) × {it['qty']} = {it['product']['price'] * it['qty']} ₽"
+        for it in items
+    )
+    # Покупателю
+    send_email(buyer_email, f"[Fureoska] Ваш заказ #{order_id} принят",
+        f"Здравствуйте, {buyer_name}!\n\n"
+        f"Ваш заказ #{order_id} принят и скоро будет обработан.\n\n"
+        f"Состав заказа:\n{lines}\n\n"
+        f"Итого: {total} ₽\n"
+        f"Способ оплаты: {payment}\n"
+        f"Адрес доставки: {address}\n\n"
+        f"Спасибо за покупку в Fureoska!")
+    # Администратору
+    send_email(ADMIN_EMAIL, f"[Fureoska] Новый заказ #{order_id} на {total} ₽",
+        f"Новый заказ #{order_id}\n\n"
+        f"Покупатель : {buyer_name}\n"
+        f"Телефон    : {phone}\n"
+        f"Email      : {buyer_email}\n"
+        f"Адрес      : {address}\n"
+        f"Оплата     : {payment}\n\n"
+        f"Состав:\n{lines}\n\n"
+        f"Итого: {total} ₽")
+    # Продавцам — каждому только его товары
+    for seller_email, seller_name, seller_items in sellers_info:
+        seller_lines = "\n".join(
+            f"  • {it['product']['name']} ({it['size']}) × {it['qty']} = {it['product']['price'] * it['qty']} ₽"
+            for it in seller_items
+        )
+        send_email(seller_email, f"[Fureoska] Купили ваш товар! Заказ #{order_id}",
+            f"Здравствуйте, {seller_name}!\n\n"
+            f"Новый заказ #{order_id} содержит ваши товары:\n\n"
+            f"{seller_lines}\n\n"
+            f"Покупатель: {buyer_name}\n"
+            f"Телефон   : {phone}\n"
+            f"Адрес     : {address}\n"
+            f"Оплата    : {payment}")
+
 def get_admin_stats(conn):
     return {
         "users":    conn.execute("SELECT COUNT(*) FROM users").fetchone()[0],
@@ -306,18 +370,22 @@ def home():
     subcategory = request.args.get("subcategory","Все")
     search      = request.args.get("search","").strip()
     sort        = request.args.get("sort","")
+    price_min   = request.args.get("price_min","").strip()
+    price_max   = request.args.get("price_max","").strip()
     conn = get_db()
     query = "SELECT * FROM products WHERE 1=1"; params = []
     if category != "Все": query += " AND category=?"; params.append(category)
     if subcategory != "Все": query += " AND subcategory=?"; params.append(subcategory)
     if search: query += " AND name LIKE ?"; params.append(f"%{search}%")
+    if price_min.isdigit(): query += " AND price >= ?"; params.append(int(price_min))
+    if price_max.isdigit(): query += " AND price <= ?"; params.append(int(price_max))
     query += " ORDER BY price ASC" if sort=="asc" else " ORDER BY price DESC" if sort=="desc" else " ORDER BY id DESC"
     products_list = conn.execute(query,params).fetchall()
     conn.close()
     return render_template("index.html",products=products_list,current=category,
         subcategory=subcategory,subcats=SUBCATEGORIES.get(category,[]) if category!="Все" else [],
         search=search,favorites=get_favorites_ids(),cart_count=get_cart_count(),
-        sort=sort,dark=get_dark(),user=current_user(),lang=get_lang())
+        sort=sort,price_min=price_min,price_max=price_max,dark=get_dark(),user=current_user(),lang=get_lang())
 
 @app.route("/toggle-theme")
 def toggle_theme():
@@ -376,48 +444,24 @@ def cart_remove(key):
     cart = session.get("cart",{}); cart.pop(key,None); session["cart"] = cart
     return redirect(url_for("cart"))
 
+@app.route("/cart/update/<key>")
+def cart_update(key):
+    qty = request.args.get("qty", "1")
+    cart = session.get("cart", {})
+    if qty.isdigit() and int(qty) > 0:
+        cart[key] = int(qty)
+    elif qty == "0":
+        cart.pop(key, None)
+    session["cart"] = cart
+    return redirect(url_for("cart"))
+
 @app.route("/cart/clear")
 def cart_clear():
     session["cart"] = {}; return redirect(url_for("cart"))
 
-def send_order_notification(order_id, buyer_name, phone, email, address, payment, total, items):
-    """Отправляет уведомление о новом заказе на почту администратора."""
-    import smtplib
-    from email.mime.text import MIMEText
-
-    # ──── НАСТРОЙТЕ ЭТИ ПАРАМЕТРЫ ────
-    ADMIN_EMAIL   = "fureoskwork@gmail.com"   # куда приходят уведомления
-    SMTP_HOST     = "smtp.gmail.com"    # или smtp.gmail.com, smtp.mail.ru
-    SMTP_PORT     = 587
-    SMTP_USER     = "fureoskwork@gmail.com"   # ваш email-логин
-    SMTP_PASSWORD = "mzhz cahr udkq qinu"        # пароль приложения
-    # ─────────────────────────────────
-
-    lines = "\n".join(
-        f"  • {it['product']['name']} ({it['size']}) × {it['qty']} = {it['subtotal']} ₽"
-        for it in items
-    )
-    body = (
-        f"🛒 Новый заказ #{order_id}\n\n"
-        f"Покупатель : {buyer_name}\n"
-        f"Телефон    : {phone}\n"
-        f"Email      : {email}\n"
-        f"Адрес      : {address}\n"
-        f"Оплата     : {payment}\n\n"
-        f"Состав:\n{lines}\n\n"
-        f"Итого: {total} ₽"
-    )
-    msg = MIMEText(body, "plain", "utf-8")
-    msg["Subject"] = f"[Fureoska] Новый заказ #{order_id} на {total} ₽"
-    msg["From"]    = SMTP_USER
-    msg["To"]      = ADMIN_EMAIL
-    try:
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=10) as s:
-            s.starttls()
-            s.login(SMTP_USER, SMTP_PASSWORD)
-            s.send_message(msg)
-    except Exception as e:
-        app.logger.error(f"[email] Не удалось отправить уведомление: {e}")
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template("404.html", dark=get_dark(), user=current_user()), 404
 
 @app.route("/order", methods=["GET","POST"])
 def order():
@@ -432,19 +476,36 @@ def order():
             subtotal = product["price"]*qty
             items.append({"product":product,"qty":qty,"size":size,"subtotal":subtotal,"pid":int(pid)}); total+=subtotal
     if request.method == "POST":
+        buyer_name = request.form["name"]
+        buyer_email = request.form["email"]
+        phone = request.form["phone"]
+        address = request.form["address"]
+        payment = request.form["payment"]
         conn = get_db()
         conn.execute("INSERT INTO orders (buyer_id,buyer_name,phone,email,address,payment,total) VALUES (?,?,?,?,?,?,?)",
-                     (user["id"],request.form["name"],request.form["phone"],
-                      request.form["email"],request.form["address"],request.form["payment"],total))
+                     (user["id"],buyer_name,phone,buyer_email,address,payment,total))
         order_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
         for item in items:
             conn.execute("INSERT INTO order_items (order_id,product_id,product_name,price,size,qty) VALUES (?,?,?,?,?,?)",
                          (order_id,item["pid"],item["product"]["name"],item["product"]["price"],item["size"],item["qty"]))
-        conn.commit(); conn.close(); session["cart"] = {}
-        # Отправляем email-уведомление администратору
-        send_order_notification(order_id,request.form["name"],request.form["phone"],
-            request.form["email"],request.form["address"],request.form["payment"],total,items)
-        return render_template("order_success.html",name=request.form.get("name"),dark=get_dark(),user=current_user())
+        conn.commit()
+        # Собираем продавцов и их товары для уведомлений
+        sellers_map = {}
+        for item in items:
+            sid = item["product"]["seller_id"]
+            if sid not in sellers_map:
+                seller = conn.execute("SELECT username, email, shop_name FROM users WHERE id=?",(sid,)).fetchone()
+                if seller:
+                    sellers_map[sid] = {"email": seller["email"],
+                                        "name": seller["shop_name"] or seller["username"],
+                                        "items": []}
+            if sid in sellers_map:
+                sellers_map[sid]["items"].append(item)
+        conn.close()
+        session["cart"] = {}
+        sellers_info = [(s["email"], s["name"], s["items"]) for s in sellers_map.values()]
+        notify_order(order_id, buyer_name, buyer_email, phone, address, payment, total, items, sellers_info)
+        return render_template("order_success.html",name=buyer_name,dark=get_dark(),user=current_user())
     return render_template("order.html",items=items,total=total,cart_count=get_cart_count(),dark=get_dark(),user=current_user())
 
 @app.route("/favorites")

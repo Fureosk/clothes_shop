@@ -67,11 +67,21 @@
 
     <div class="toolbar">
         <span class="results-count">{{ 'Found:' if lang == 'en' else 'Найдено:' }} {{ products|length }} {{ 'items' if lang == 'en' else 'товаров' }}</span>
+        <form method="GET" action="/shop" class="price-filter">
+            <input type="hidden" name="category" value="{{ current }}">
+            <input type="hidden" name="subcategory" value="{{ subcategory }}">
+            <input type="hidden" name="search" value="{{ search }}">
+            <input type="hidden" name="sort" value="{{ sort }}">
+            <input type="number" name="price_min" placeholder="{{ 'From ₽' if lang == 'en' else 'От ₽' }}" value="{{ price_min }}" min="0">
+            <input type="number" name="price_max" placeholder="{{ 'To ₽' if lang == 'en' else 'До ₽' }}" value="{{ price_max }}" min="0">
+            <button type="submit">{{ 'Apply' if lang == 'en' else 'Применить' }}</button>
+            {% if price_min or price_max %}<a href="/shop?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&sort={{ sort }}" class="sort-btn">✕</a>{% endif %}
+        </form>
         <div class="sort-btns">
             <span>{{ 'Sort:' if lang == 'en' else 'Сортировка:' }}</span>
-            <a href="/shop?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&sort=asc" class="sort-btn {% if sort == 'asc' %}active{% endif %}">↑ {{ 'Cheaper' if lang == 'en' else 'Дешевле' }}</a>
-            <a href="/shop?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&sort=desc" class="sort-btn {% if sort == 'desc' %}active{% endif %}">↓ {{ 'Pricier' if lang == 'en' else 'Дороже' }}</a>
-            {% if sort %}<a href="/shop?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}" class="sort-btn">✕ {{ 'Reset' if lang == 'en' else 'Сброс' }}</a>{% endif %}
+            <a href="/shop?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&sort=asc&price_min={{ price_min }}&price_max={{ price_max }}" class="sort-btn {% if sort == 'asc' %}active{% endif %}">↑ {{ 'Cheaper' if lang == 'en' else 'Дешевле' }}</a>
+            <a href="/shop?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&sort=desc&price_min={{ price_min }}&price_max={{ price_max }}" class="sort-btn {% if sort == 'desc' %}active{% endif %}">↓ {{ 'Pricier' if lang == 'en' else 'Дороже' }}</a>
+            {% if sort %}<a href="/shop?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&price_min={{ price_min }}&price_max={{ price_max }}" class="sort-btn">✕ {{ 'Reset' if lang == 'en' else 'Сброс' }}</a>{% endif %}
         </div>
     </div>
 

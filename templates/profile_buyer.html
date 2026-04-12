@@ -53,7 +53,7 @@
             <div class="order-card">
                 <div class="order-card-header">
                     <span><strong>Заказ #{{ entry.order.id }}</strong></span>
-                    <span class="order-status">{{ entry.order.status }}</span>
+                    <span class="order-status status-{{ entry.order.status | replace(' ', '-') | lower }}">{{ entry.order.status }}</span>
                     <span class="order-date">{{ entry.order.created_at[:10] }}</span>
                 </div>
                 {% for item in entry.lines %}

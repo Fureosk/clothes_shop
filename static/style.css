@@ -685,3 +685,76 @@ body.dark .cat-card.active { background: #e44; }
     .order-card-header { gap: 6px; }
     .order-date { margin-left: 0; width: 100%; }
 }
+
+/* ── Фильтр по цене ── */
+.price-filter {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.price-filter input[type="number"] {
+    width: 90px;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 13px;
+}
+.price-filter button {
+    padding: 6px 14px;
+    background: #222;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+}
+.price-filter button:hover { background: #444; }
+body.dark .price-filter input { background: #0f3460; color: #eee; border-color: #444; }
+
+/* ── Количество в корзине ── */
+.qty-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0;
+}
+.qty-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    background: #f0f0f0;
+    border-radius: 50%;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+.qty-btn:hover { background: #ddd; }
+.qty-num {
+    font-size: 16px;
+    font-weight: bold;
+    min-width: 24px;
+    text-align: center;
+}
+body.dark .qty-btn { background: #0f3460; color: #eee; }
+body.dark .qty-btn:hover { background: #1a3a6e; }
+
+/* ── Статус заказа с цветами ── */
+.order-status { padding: 3px 10px; border-radius: 20px; font-size: 13px; font-weight: bold; }
+.status-новый               { background: #dbeafe; color: #1d4ed8; }
+.status-в-обработке         { background: #fef9c3; color: #854d0e; }
+.status-отправлен           { background: #e0f2fe; color: #0369a1; }
+.status-доставлен           { background: #dcfce7; color: #166534; }
+.status-отменён             { background: #fee2e2; color: #991b1b; }
+body.dark .status-новый     { background: #1e3a5f; color: #93c5fd; }
+body.dark .status-в-обработке { background: #3b2f00; color: #fde68a; }
+body.dark .status-отправлен { background: #0c2a3a; color: #7dd3fc; }
+body.dark .status-доставлен { background: #052e16; color: #86efac; }
+body.dark .status-отменён   { background: #3b0f0f; color: #fca5a5; }
+
+/* ── Toolbar flex wrap ── */
+.toolbar { flex-wrap: wrap; gap: 10px; }
