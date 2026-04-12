@@ -364,6 +364,9 @@ def cart():
 
 @app.route("/cart/add/<int:pid>")
 def cart_add(pid):
+    if not current_user():
+        flash("Войдите в аккаунт, чтобы добавить товар в корзину","error")
+        return redirect(url_for("login"))
     size = request.args.get("size","M"); cart = session.get("cart",{})
     key = f"{pid}_{size}"; cart[key] = cart.get(key,0)+1; session["cart"] = cart
     return redirect(request.referrer or url_for("home"))
@@ -377,8 +380,51 @@ def cart_remove(key):
 def cart_clear():
     session["cart"] = {}; return redirect(url_for("cart"))
 
+def send_order_notification(order_id, buyer_name, phone, email, address, payment, total, items):
+    """Отправляет уведомление о новом заказе на почту администратора."""
+    import smtplib
+    from email.mime.text import MIMEText
+
+    # ──── НАСТРОЙТЕ ЭТИ ПАРАМЕТРЫ ────
+    ADMIN_EMAIL   = "fureoskwork@gmail.com"   # куда приходят уведомления
+    SMTP_HOST     = "smtp.gmail.com"    # или smtp.gmail.com, smtp.mail.ru
+    SMTP_PORT     = 587
+    SMTP_USER     = "fureoskwork@gmail.com"   # ваш email-логин
+    SMTP_PASSWORD = "mzhz cahr udkq qinu"        # пароль приложения
+    # ─────────────────────────────────
+
+    lines = "\n".join(
+        f"  • {it['product']['name']} ({it['size']}) × {it['qty']} = {it['subtotal']} ₽"
+        for it in items
+    )
+    body = (
+        f"🛒 Новый заказ #{order_id}\n\n"
+        f"Покупатель : {buyer_name}\n"
+        f"Телефон    : {phone}\n"
+        f"Email      : {email}\n"
+        f"Адрес      : {address}\n"
+        f"Оплата     : {payment}\n\n"
+        f"Состав:\n{lines}\n\n"
+        f"Итого: {total} ₽"
+    )
+    msg = MIMEText(body, "plain", "utf-8")
+    msg["Subject"] = f"[Fureoska] Новый заказ #{order_id} на {total} ₽"
+    msg["From"]    = SMTP_USER
+    msg["To"]      = ADMIN_EMAIL
+    try:
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=10) as s:
+            s.starttls()
+            s.login(SMTP_USER, SMTP_PASSWORD)
+            s.send_message(msg)
+    except Exception as e:
+        app.logger.error(f"[email] Не удалось отправить уведомление: {e}")
+
 @app.route("/order", methods=["GET","POST"])
 def order():
+    user = current_user()
+    if not user:
+        flash("Войдите в аккаунт, чтобы оформить заказ","error")
+        return redirect(url_for("login"))
     cart_data = session.get("cart",{}); items=[]; total=0
     for key,qty in cart_data.items():
         pid,size = (key.split("_")+[""])[:2]; product = get_product(int(pid))
@@ -386,15 +432,18 @@ def order():
             subtotal = product["price"]*qty
             items.append({"product":product,"qty":qty,"size":size,"subtotal":subtotal,"pid":int(pid)}); total+=subtotal
     if request.method == "POST":
-        user = current_user(); conn = get_db()
+        conn = get_db()
         conn.execute("INSERT INTO orders (buyer_id,buyer_name,phone,email,address,payment,total) VALUES (?,?,?,?,?,?,?)",
-                     (user["id"] if user else None,request.form["name"],request.form["phone"],
+                     (user["id"],request.form["name"],request.form["phone"],
                       request.form["email"],request.form["address"],request.form["payment"],total))
         order_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
         for item in items:
             conn.execute("INSERT INTO order_items (order_id,product_id,product_name,price,size,qty) VALUES (?,?,?,?,?,?)",
                          (order_id,item["pid"],item["product"]["name"],item["product"]["price"],item["size"],item["qty"]))
         conn.commit(); conn.close(); session["cart"] = {}
+        # Отправляем email-уведомление администратору
+        send_order_notification(order_id,request.form["name"],request.form["phone"],
+            request.form["email"],request.form["address"],request.form["payment"],total,items)
         return render_template("order_success.html",name=request.form.get("name"),dark=get_dark(),user=current_user())
     return render_template("order.html",items=items,total=total,cart_count=get_cart_count(),dark=get_dark(),user=current_user())
 
