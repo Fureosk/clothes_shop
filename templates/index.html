@@ -67,21 +67,43 @@
 
     <div class="toolbar">
         <span class="results-count">{{ 'Found:' if lang == 'en' else 'Найдено:' }} {{ products|length }} {{ 'items' if lang == 'en' else 'товаров' }}</span>
-        <form method="GET" action="/shop" class="price-filter">
-            <input type="hidden" name="category" value="{{ current }}">
-            <input type="hidden" name="subcategory" value="{{ subcategory }}">
-            <input type="hidden" name="search" value="{{ search }}">
-            <input type="hidden" name="sort" value="{{ sort }}">
-            <input type="number" name="price_min" placeholder="{{ 'From ₽' if lang == 'en' else 'От ₽' }}" value="{{ price_min }}" min="0">
-            <input type="number" name="price_max" placeholder="{{ 'To ₽' if lang == 'en' else 'До ₽' }}" value="{{ price_max }}" min="0">
-            <button type="submit">{{ 'Apply' if lang == 'en' else 'Применить' }}</button>
-            {% if price_min or price_max %}<a href="/shop?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&sort={{ sort }}" class="sort-btn">✕</a>{% endif %}
-        </form>
-        <div class="sort-btns">
-            <span>{{ 'Sort:' if lang == 'en' else 'Сортировка:' }}</span>
-            <a href="/shop?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&sort=asc&price_min={{ price_min }}&price_max={{ price_max }}" class="sort-btn {% if sort == 'asc' %}active{% endif %}">↑ {{ 'Cheaper' if lang == 'en' else 'Дешевле' }}</a>
-            <a href="/shop?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&sort=desc&price_min={{ price_min }}&price_max={{ price_max }}" class="sort-btn {% if sort == 'desc' %}active{% endif %}">↓ {{ 'Pricier' if lang == 'en' else 'Дороже' }}</a>
-            {% if sort %}<a href="/shop?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&price_min={{ price_min }}&price_max={{ price_max }}" class="sort-btn">✕ {{ 'Reset' if lang == 'en' else 'Сброс' }}</a>{% endif %}
+
+        <div class="toolbar-right">
+            <!-- Кнопка Фильтры -->
+            <div class="filter-wrap">
+                <button class="filter-btn {% if price_min or price_max %}active{% endif %}" onclick="toggleFilter()" id="filterToggle">
+                    🔧 {{ 'Filters' if lang == 'en' else 'Фильтры' }}
+                    {% if price_min or price_max %}<span class="filter-dot"></span>{% endif %}
+                    <span class="filter-arrow" id="filterArrow">▾</span>
+                </button>
+                <div class="filter-dropdown" id="filterDropdown">
+                    <form method="GET" action="/shop" class="price-filter-inner">
+                        <input type="hidden" name="category" value="{{ current }}">
+                        <input type="hidden" name="subcategory" value="{{ subcategory }}">
+                        <input type="hidden" name="search" value="{{ search }}">
+                        <input type="hidden" name="sort" value="{{ sort }}">
+                        <label class="filter-label">{{ 'Price, ₽' if lang == 'en' else 'Цена, ₽' }}</label>
+                        <div class="price-row">
+                            <input type="number" name="price_min" placeholder="{{ 'From' if lang == 'en' else 'От' }}" value="{{ price_min }}" min="0">
+                            <span>—</span>
+                            <input type="number" name="price_max" placeholder="{{ 'To' if lang == 'en' else 'До' }}" value="{{ price_max }}" min="0">
+                        </div>
+                        <div class="filter-actions">
+                            <button type="submit" class="btn">{{ 'Apply' if lang == 'en' else 'Применить' }}</button>
+                            {% if price_min or price_max %}
+                            <a href="/shop?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&sort={{ sort }}" class="btn-outline">{{ 'Reset' if lang == 'en' else 'Сброс' }}</a>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Сортировка -->
+            <div class="sort-btns">
+                <a href="/shop?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&sort=asc&price_min={{ price_min }}&price_max={{ price_max }}" class="sort-btn {% if sort == 'asc' %}active{% endif %}">↑ {{ 'Cheaper' if lang == 'en' else 'Дешевле' }}</a>
+                <a href="/shop?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&sort=desc&price_min={{ price_min }}&price_max={{ price_max }}" class="sort-btn {% if sort == 'desc' %}active{% endif %}">↓ {{ 'Дороже' if lang == 'ru' else 'Pricier' }}</a>
+                {% if sort %}<a href="/shop?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&price_min={{ price_min }}&price_max={{ price_max }}" class="sort-btn">✕</a>{% endif %}
+            </div>
         </div>
     </div>
 
@@ -136,6 +158,25 @@
             const size = document.getElementById("size-" + pid).value;
             window.location.href = "/cart/add/" + pid + "?size=" + size;
         }
+
+        function toggleFilter() {
+            const dd = document.getElementById("filterDropdown");
+            const arrow = document.getElementById("filterArrow");
+            const btn = document.getElementById("filterToggle");
+            const open = dd.classList.toggle("open");
+            arrow.textContent = open ? "▴" : "▾";
+            btn.classList.toggle("open", open);
+        }
+
+        // Закрыть при клике вне
+        document.addEventListener("click", function(e) {
+            const wrap = document.querySelector(".filter-wrap");
+            if (wrap && !wrap.contains(e.target)) {
+                document.getElementById("filterDropdown").classList.remove("open");
+                document.getElementById("filterArrow").textContent = "▾";
+                document.getElementById("filterToggle").classList.remove("open");
+            }
+        });
     </script>
 </body>
 </html>
