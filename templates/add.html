@@ -6,19 +6,31 @@
     <title>Добавить товар</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body>
+<body class="{{ 'dark' if dark else '' }}">
     <header>
-        <h1>➕ Добавить товар</h1>
-        <a href="/" class="btn">← Назад</a>
+        <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 Fureoska</h1></a>
+        <div class="header-right">
+            <a href="/" class="icon-btn">← Назад</a>
+        </div>
     </header>
 
     <div class="form-container">
+        <h2 style="margin-bottom:20px;">➕ Добавить товар</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for cat, msg in messages %}
+            <div class="flash flash-{{ cat }}">{{ msg }}</div>
+            {% endfor %}
+        {% endwith %}
+
         <form method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
             <label>Название товара</label>
-            <input type="text" name="name" placeholder="Например: Пуховик" required>
+            <input type="text" name="name" placeholder="Например: Пуховик зимний" required>
 
             <label>Цена (₽)</label>
-            <input type="number" name="price" placeholder="Например: 3999" required>
+            <input type="number" name="price" placeholder="Например: 3999" min="1" required>
 
             <label>Категория</label>
             <select name="category" id="category" onchange="updateSubcategories()">
@@ -31,12 +43,21 @@
             <select name="subcategory" id="subcategory"></select>
 
             <label>Описание</label>
-            <textarea name="description" placeholder="Краткое описание товара"></textarea>
+            <textarea name="description" placeholder="Краткое описание товара" style="height:80px;"></textarea>
 
             <label>Фото товара</label>
-            <input type="file" name="photo" accept="image/*">
+            <div class="photo-upload-wrap">
+                <input type="file" name="photo" accept=".png,.jpg,.jpeg,.gif,.webp" id="photoInput" onchange="previewPhoto(event)">
+                <div id="photo-preview" class="photo-preview" style="display:none;">
+                    <img id="preview-img" src="" alt="Превью">
+                    <button type="button" onclick="clearPhoto()" class="clear-photo-btn">✕ Удалить</button>
+                </div>
+                <p class="upload-hint">PNG, JPG, GIF или WEBP · до 5 МБ</p>
+            </div>
 
-            <button type="submit" class="btn">Добавить товар</button>
+            <button type="submit" class="btn" style="width:100%; margin-top:20px; padding:14px; font-size:15px;">
+                Добавить товар
+            </button>
         </form>
     </div>
 
@@ -48,18 +69,38 @@
         };
 
         function updateSubcategories() {
-            const cat = document.getElementById("category").value;
-            const sub = document.getElementById("subcategory");
+            var cat = document.getElementById("category").value;
+            var sub = document.getElementById("subcategory");
             sub.innerHTML = "";
-            subcategories[cat].forEach(s => {
-                const opt = document.createElement("option");
-                opt.value = s;
-                opt.textContent = s;
+            subcategories[cat].forEach(function(s) {
+                var opt = document.createElement("option");
+                opt.value = s; opt.textContent = s;
                 sub.appendChild(opt);
             });
         }
-
         updateSubcategories();
+
+        function previewPhoto(e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            var maxMB = 5;
+            if (file.size > maxMB * 1024 * 1024) {
+                alert("Файл слишком большой. Максимум " + maxMB + " МБ.");
+                e.target.value = ""; return;
+            }
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                document.getElementById("preview-img").src = ev.target.result;
+                document.getElementById("photo-preview").style.display = "flex";
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearPhoto() {
+            document.getElementById("photoInput").value = "";
+            document.getElementById("photo-preview").style.display = "none";
+            document.getElementById("preview-img").src = "";
+        }
     </script>
 </body>
 </html>

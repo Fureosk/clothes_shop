@@ -29,6 +29,7 @@
         <div class="form-container">
             <h2>Данные для доставки</h2>
             <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <label>Имя</label>
                 <input type="text" name="name" placeholder="Ваше имя" required>
 

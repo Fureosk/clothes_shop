@@ -17,7 +17,7 @@
                 <button type="submit">{{ 'Search' if lang == 'en' else 'Найти' }}</button>
             </form>
             <a href="/toggle-theme" class="icon-btn">{{ '☀️' if dark else '🌙' }}</a>
-            <a href="/set-lang/{{ 'ru' if lang == 'en' else 'en' }}" class="icon-btn" title="{{ 'Switch language' if lang == 'en' else 'Сменить язык' }}">{{ '🇬🇧 EN' if lang == 'ru' else '🇷🇺 RU' }}</a>
+            <a href="/set-lang/{{ 'ru' if lang == 'en' else 'en' }}" class="icon-btn">{{ '🇬🇧 EN' if lang == 'ru' else '🇷🇺 RU' }}</a>
             {% if user %}
                 <a href="/profile" class="icon-btn">👤 {{ user.username }}</a>
             {% else %}
@@ -25,12 +25,15 @@
                 <a href="/register" class="icon-btn">{{ 'Register' if lang == 'en' else 'Регистрация' }}</a>
             {% endif %}
             <a href="/favorites" class="icon-btn">❤️</a>
-            <a href="/cart" class="icon-btn">🛒 {% if cart_count > 0 %}<span class="badge">{{ cart_count }}</span>{% endif %}</a>
+            <a href="/cart" class="icon-btn" id="cart-link">🛒 <span id="cart-badge-wrap">{% if cart_count > 0 %}<span class="badge" id="cart-badge">{{ cart_count }}</span>{% endif %}</span></a>
             {% if user and user.role in ('seller','admin') %}
             <a href="/add" class="btn">{{ '+ Add' if lang == 'en' else '+ Добавить' }}</a>
             {% endif %}
         </div>
     </header>
+
+    <!-- TOAST уведомление -->
+    <div id="cart-toast" class="cart-toast" style="display:none;"></div>
 
     <!-- CATEGORY CARDS NAV -->
     <div class="cat-nav">
@@ -66,10 +69,8 @@
     {% endif %}
 
     <div class="toolbar">
-        <span class="results-count">{{ 'Found:' if lang == 'en' else 'Найдено:' }} {{ products|length }} {{ 'items' if lang == 'en' else 'товаров' }}</span>
-
+        <span class="results-count">{{ 'Found:' if lang == 'en' else 'Найдено:' }} {{ total_count }} {{ 'items' if lang == 'en' else 'товаров' }}</span>
         <div class="toolbar-right">
-            <!-- Кнопка Фильтры -->
             <div class="filter-wrap">
                 <button class="filter-btn {% if price_min or price_max %}active{% endif %}" onclick="toggleFilter()" id="filterToggle">
                     🔧 {{ 'Filters' if lang == 'en' else 'Фильтры' }}
@@ -97,8 +98,6 @@
                     </form>
                 </div>
             </div>
-
-            <!-- Сортировка -->
             <div class="sort-btns">
                 <a href="/shop?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&sort=asc&price_min={{ price_min }}&price_max={{ price_max }}" class="sort-btn {% if sort == 'asc' %}active{% endif %}">↑ {{ 'Cheaper' if lang == 'en' else 'Дешевле' }}</a>
                 <a href="/shop?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&sort=desc&price_min={{ price_min }}&price_max={{ price_max }}" class="sort-btn {% if sort == 'desc' %}active{% endif %}">↓ {{ 'Дороже' if lang == 'ru' else 'Pricier' }}</a>
@@ -129,17 +128,17 @@
                 <p class="desc">{{ product.description }}</p>
                 <p class="price">{{ product.price }} ₽</p>
                 <div class="size-select">
-                    <select id="size-{{ product.id }}">
+                    <select id="size-{{ product.id }}" onchange="saveSize({{ product.id }}, this.value)">
                         <option value="XS">XS</option>
                         <option value="S">S</option>
-                        <option value="M" selected>M</option>
+                        <option value="M">M</option>
                         <option value="L">L</option>
                         <option value="XL">XL</option>
                         <option value="XXL">XXL</option>
                     </select>
                 </div>
                 <div class="card-actions">
-                    <a href="#" onclick="addToCart({{ product.id }}); return false;" class="btn">🛒 {{ 'Add to cart' if lang == 'en' else 'В корзину' }}</a>
+                    <button onclick="addToCart({{ product.id }})" class="btn ajax-cart-btn" data-pid="{{ product.id }}">🛒 {{ 'Add to cart' if lang == 'en' else 'В корзину' }}</button>
                     <a href="/favorites/toggle/{{ product.id }}" class="fav-btn {% if product.id in favorites %}active{% endif %}">
                         {% if product.id in favorites %}❤️{% else %}🤍{% endif %}
                     </a>
@@ -153,24 +152,104 @@
     <p class="empty">{{ 'No products found' if lang == 'en' else 'Товаров не найдено' }}</p>
     {% endif %}
 
+    <!-- ПАГИНАЦИЯ -->
+    {% if total_pages > 1 %}
+    <div class="pagination">
+        {% if page > 1 %}
+        <a href="/shop?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&sort={{ sort }}&price_min={{ price_min }}&price_max={{ price_max }}&page={{ page - 1 }}" class="page-btn">← {{ 'Prev' if lang == 'en' else 'Назад' }}</a>
+        {% endif %}
+
+        {% for p in range(1, total_pages + 1) %}
+            {% if p == page %}
+            <span class="page-btn active">{{ p }}</span>
+            {% elif p == 1 or p == total_pages or (p >= page - 2 and p <= page + 2) %}
+            <a href="/shop?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&sort={{ sort }}&price_min={{ price_min }}&price_max={{ price_max }}&page={{ p }}" class="page-btn">{{ p }}</a>
+            {% elif p == page - 3 or p == page + 3 %}
+            <span class="page-dots">…</span>
+            {% endif %}
+        {% endfor %}
+
+        {% if page < total_pages %}
+        <a href="/shop?category={{ current }}&subcategory={{ subcategory }}&search={{ search }}&sort={{ sort }}&price_min={{ price_min }}&price_max={{ price_max }}&page={{ page + 1 }}" class="page-btn">{{ 'Next' if lang == 'en' else 'Далее' }} →</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
     <script>
+        // ── Сохранение размера в localStorage ───────────────────
+        function saveSize(pid, size) {
+            try { localStorage.setItem("size_" + pid, size); } catch(e){}
+        }
+        function restoreSizes() {
+            document.querySelectorAll("[id^='size-']").forEach(function(sel) {
+                var pid = sel.id.replace("size-", "");
+                try {
+                    var saved = localStorage.getItem("size_" + pid);
+                    if (saved) sel.value = saved;
+                } catch(e){}
+            });
+        }
+        restoreSizes();
+
+        // ── AJAX добавление в корзину ────────────────────────────
         function addToCart(pid) {
-            const size = document.getElementById("size-" + pid).value;
-            window.location.href = "/cart/add/" + pid + "?size=" + size;
+            var size = document.getElementById("size-" + pid).value;
+            var btn = document.querySelector("[data-pid='" + pid + "']");
+            if (btn) { btn.disabled = true; btn.textContent = "⏳"; }
+
+            fetch("/cart/add/" + pid + "?size=" + size, {
+                method: "GET",
+                headers: { "X-Requested-With": "XMLHttpRequest" }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (btn) { btn.disabled = false; btn.textContent = "🛒 {{ 'Add to cart' if lang == 'en' else 'В корзину' }}"; }
+                if (data.ok) {
+                    updateCartBadge(data.count);
+                    showToast(data.msg || "Добавлено!");
+                } else if (data.redirect) {
+                    window.location.href = data.redirect;
+                }
+            })
+            .catch(function() {
+                if (btn) { btn.disabled = false; btn.textContent = "🛒 {{ 'Add to cart' if lang == 'en' else 'В корзину' }}"; }
+                showToast("Ошибка, попробуйте снова");
+            });
         }
 
+        function updateCartBadge(count) {
+            var wrap = document.getElementById("cart-badge-wrap");
+            if (!wrap) return;
+            if (count > 0) {
+                wrap.innerHTML = '<span class="badge" id="cart-badge">' + count + '</span>';
+            } else {
+                wrap.innerHTML = '';
+            }
+        }
+
+        function showToast(msg) {
+            var t = document.getElementById("cart-toast");
+            t.textContent = msg;
+            t.style.display = "block";
+            t.classList.add("show");
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(function() {
+                t.classList.remove("show");
+                setTimeout(function() { t.style.display = "none"; }, 300);
+            }, 2000);
+        }
+
+        // ── Фильтр ──────────────────────────────────────────────
         function toggleFilter() {
-            const dd = document.getElementById("filterDropdown");
-            const arrow = document.getElementById("filterArrow");
-            const btn = document.getElementById("filterToggle");
-            const open = dd.classList.toggle("open");
+            var dd = document.getElementById("filterDropdown");
+            var arrow = document.getElementById("filterArrow");
+            var btn = document.getElementById("filterToggle");
+            var open = dd.classList.toggle("open");
             arrow.textContent = open ? "▴" : "▾";
             btn.classList.toggle("open", open);
         }
-
-        // Закрыть при клике вне
         document.addEventListener("click", function(e) {
-            const wrap = document.querySelector(".filter-wrap");
+            var wrap = document.querySelector(".filter-wrap");
             if (wrap && !wrap.contains(e.target)) {
                 document.getElementById("filterDropdown").classList.remove("open");
                 document.getElementById("filterArrow").textContent = "▾";
