@@ -1,0 +1,4 @@
+shop.db
+__pycache__/
+static/uploads/
+fix.py
