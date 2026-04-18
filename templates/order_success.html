@@ -1,14 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Заказ оформлен!</title>
+    <meta name="description" content="Ваш заказ успешно оформлен на Fureoska">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="{{ 'dark' if dark else '' }}">
+<body class="{{ theme }}">
     <header>
-        <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 Магазин одежды</h1></a>
+        <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 Fureoska</h1></a>
+        <div class="header-right">
+            <div class="theme-picker">
+            <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
+            <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
+            <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
+        </div>
+            <a href="/cart" class="icon-btn">🛒</a>
+        </div>
     </header>
 
     <div class="success-page">
@@ -19,5 +29,12 @@
             <a href="/" class="btn" style="margin-top: 20px; display: inline-block;">← Вернуться в магазин</a>
         </div>
     </div>
+<script>
+  // Заменяем текущую запись в истории, чтобы кнопка «Назад» не вела на пустую форму заказа
+  if (window.history && window.history.replaceState) {
+    window.history.replaceState(null, '', '/order-success');
+  }
+</script>
+<script src="/static/main.js" defer></script>
 </body>
 </html>

@@ -1,23 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ seller.shop_name }} — Fureoska</title>
+    <meta name="description" content="Магазин продавца на Fureoska">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="{{ 'dark' if dark else '' }}">
+<body class="{{ theme }}">
     <header>
         <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 Fureoska</h1></a>
         <div class="header-right">
-            <a href="/toggle-theme" class="icon-btn">{{ '☀️' if dark else '🌙' }}</a>
+            <div class="theme-picker">
+            <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
+            <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
+            <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
+        </div>
             {% if current_user %}
                 <a href="/profile" class="icon-btn">👤 {{ current_user.username }}</a>
             {% else %}
                 <a href="/login" class="icon-btn">Войти</a>
             {% endif %}
             <a href="/cart" class="icon-btn">🛒 {% if cart_count > 0 %}<span class="badge">{{ cart_count }}</span>{% endif %}</a>
-            <a href="/" class="icon-btn">← Назад</a>
+            <a href="javascript:history.back()" class="icon-btn">← Назад</a>
         </div>
     </header>
 
@@ -65,10 +71,10 @@
                     </select>
                 </div>
                 <div class="card-actions">
-                    <a href="#" onclick="addToCart({{ product.id }}); return false;" class="btn">🛒 В корзину</a>
-                    <a href="/favorites/toggle/{{ product.id }}" class="fav-btn {% if product.id in favorites %}active{% endif %}">
+                    <button type="button" onclick="addToCart({{ product.id }})" class="btn ajax-cart-btn" data-pid="{{ product.id }}">🛒 В корзину</button>
+                    <button type="button" onclick="toggleFavorite({{ product.id }}, this)" class="fav-btn {% if product.id in favorites %}active{% endif %}" data-pid="{{ product.id }}">
                         {% if product.id in favorites %}❤️{% else %}🤍{% endif %}
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
@@ -77,6 +83,6 @@
     {% else %}
     <p class="empty">В этом магазине пока нет товаров</p>
     {% endif %}
-<script src="/static/main.js"></script>
+<script src="/static/main.js" defer></script>
 </body>
 </html>

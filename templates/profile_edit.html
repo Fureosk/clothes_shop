@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Редактировать профиль</title>
+    <meta name="description" content="Редактирование профиля на Fureoska">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/static/style.css">
     <style>
         .edit-section {
@@ -47,10 +49,15 @@
         .avatar-info p { font-size: 13px; color: #888; margin-top: 6px; }
     </style>
 </head>
-<body class="{{ 'dark' if dark else '' }}">
+<body class="{{ theme }}">
     <header>
         <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 Fureoska</h1></a>
         <div class="header-right">
+            <div class="theme-picker">
+            <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
+            <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
+            <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
+        </div>
             <a href="/profile" class="icon-btn">← Назад</a>
         </div>
     </header>
@@ -143,6 +150,6 @@
             </button>
         </form>
     </div>
-<script src="/static/main.js"></script>
+<script src="/static/main.js" defer></script>
 </body>
 </html>

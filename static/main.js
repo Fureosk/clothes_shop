@@ -80,6 +80,29 @@ function addToCartProduct() {
 }
 
 /* ─────────────────────────────────────────────
+   3. ИЗБРАННОЕ (AJAX)
+───────────────────────────────────────────── */
+function toggleFavorite(pid, btn) {
+  fetch('/favorites/toggle/' + pid, {
+    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (!data.ok) return;
+    if (btn) {
+      btn.classList.toggle('active', data.is_fav);
+      btn.textContent = data.is_fav ? '❤️' : '🤍';
+    }
+    // обновить все кнопки с тем же pid на странице
+    document.querySelectorAll('.fav-btn[data-pid="' + pid + '"]').forEach(function(b) {
+      b.classList.toggle('active', data.is_fav);
+      b.textContent = data.is_fav ? '❤️' : '🤍';
+    });
+  })
+  .catch(function() { showToast('Ошибка, попробуйте снова'); });
+}
+
+/* ─────────────────────────────────────────────
    3. ФИЛЬТР ЦЕН
 ───────────────────────────────────────────── */
 function toggleFilter() {
@@ -181,12 +204,13 @@ function togglePw(id, btn) {
 /* ─────────────────────────────────────────────
    7. ТАБЫ
 ───────────────────────────────────────────── */
-function showTab(name) {
+function showTab(name, btn) {
   document.querySelectorAll('.tab-content').forEach(function (t) { t.style.display = 'none'; });
   document.querySelectorAll('.ptab').forEach(function (t) { t.classList.remove('active'); });
   var tab = document.getElementById('tab-' + name);
   if (tab) tab.style.display = 'block';
-  if (event && event.target) event.target.classList.add('active');
+  var activeBtn = btn || (event && event.target ? event.target : null);
+  if (activeBtn) activeBtn.classList.add('active');
 }
 
 /* ─────────────────────────────────────────────
@@ -428,7 +452,9 @@ document.addEventListener('DOMContentLoaded', function () {
       || href.indexOf('javascript') === 0
       || href.indexOf('://') !== -1
       || href === '/toggle-theme'
+      || href.indexOf('/set-theme') === 0
       || href.indexOf('/set-lang') === 0
+      || href.indexOf('/favorites/toggle') === 0
       || link.target === '_blank'
       || e.ctrlKey || e.metaKey || e.shiftKey
       || link.closest('form')
@@ -437,16 +463,12 @@ document.addEventListener('DOMContentLoaded', function () {
     e.preventDefault();
     var dest = href;
     document.body.style.opacity = '0';
-    setTimeout(function () { window.location.href = dest; }, 220);
+    setTimeout(function () { window.location.href = dest; }, 150);
   });
 
-  window.addEventListener('pageshow', function (e) {
-    if (e.persisted) {
-      document.body.style.opacity = '0';
-      requestAnimationFrame(function () {
-        requestAnimationFrame(function () { document.body.style.opacity = '1'; });
-      });
-    }
+  window.addEventListener('pageshow', function () {
+    document.body.style.opacity = '1';
+    document.body.style.transition = '';
   });
 
 });

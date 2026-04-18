@@ -173,8 +173,8 @@ def get_favorites_ids():
 def get_cart_count():
     return sum(session.get("cart",{}).values())
 
-def get_dark():
-    return session.get("dark",False)
+def get_theme():
+    return session.get("theme","light")
 
 def get_lang():
     return session.get("lang","ru")
@@ -276,7 +276,7 @@ def register():
         except sqlite3.IntegrityError:
             flash("Такой логин или email уже занят","error"); return redirect(url_for("register"))
         finally: conn.close()
-    return render_template("register.html",dark=get_dark())
+    return render_template("register.html",theme=get_theme())
 
 @app.route("/login", methods=["GET","POST"])
 def login():
@@ -292,7 +292,7 @@ def login():
             session["user_id"] = user["id"]
             flash("Добро пожаловать!","success"); return redirect(url_for("home"))
         flash("Неверный логин или пароль","error"); return redirect(url_for("login"))
-    return render_template("login.html",dark=get_dark())
+    return render_template("login.html",theme=get_theme())
 
 @app.route("/logout")
 def logout():
@@ -317,7 +317,7 @@ def profile():
         conn.close()
         return render_template("profile_seller.html",user=user,products=products_list,
             total_sales=total_sales,orders_count=orders_count,recent_orders=recent_orders,
-            cart_count=get_cart_count(),dark=get_dark())
+            cart_count=get_cart_count(),theme=get_theme())
     else:
         orders = conn.execute("SELECT * FROM orders WHERE buyer_id=? ORDER BY created_at DESC",(user["id"],)).fetchall()
         orders_with_items = [{"order":o,"lines":conn.execute("SELECT * FROM order_items WHERE order_id=?",(o["id"],)).fetchall()} for o in orders]
@@ -325,7 +325,7 @@ def profile():
         fav_products = [p for p in [conn.execute("SELECT * FROM products WHERE id=?",(fid,)).fetchone() for fid in fav_ids] if p]
         conn.close()
         return render_template("profile_buyer.html",user=user,orders=orders_with_items,
-            favorites=fav_products,cart_count=get_cart_count(),dark=get_dark())
+            favorites=fav_products,cart_count=get_cart_count(),theme=get_theme())
 
 @app.route("/profile/edit", methods=["GET","POST"])
 def profile_edit():
@@ -386,7 +386,7 @@ def profile_edit():
 
         conn.commit(); conn.close()
         flash("Профиль обновлён ✓","success"); return redirect(url_for("profile"))
-    return render_template("profile_edit.html",user=user,dark=get_dark())
+    return render_template("profile_edit.html",user=user,theme=get_theme())
 
 @app.route("/seller/<int:uid>")
 def seller_page(uid):
@@ -396,7 +396,7 @@ def seller_page(uid):
     products_list = conn.execute("SELECT * FROM products WHERE seller_id=? ORDER BY created_at DESC",(uid,)).fetchall()
     conn.close()
     return render_template("seller_page.html",seller=seller,products=products_list,
-        favorites=get_favorites_ids(),cart_count=get_cart_count(),dark=get_dark(),current_user=current_user())
+        favorites=get_favorites_ids(),cart_count=get_cart_count(),theme=get_theme(),current_user=current_user())
 
 @app.route("/product/delete/<int:pid>")
 def product_delete(pid):
@@ -453,12 +453,21 @@ def home():
     return render_template("index.html",products=products_list,current=category,
         subcategory=subcategory,subcats=SUBCATEGORIES.get(category,[]) if category!="Все" else [],
         search=search,favorites=get_favorites_ids(),cart_count=get_cart_count(),
-        sort=sort,price_min=price_min,price_max=price_max,dark=get_dark(),user=current_user(),lang=get_lang(),
+        sort=sort,price_min=price_min,price_max=price_max,theme=get_theme(),user=current_user(),lang=get_lang(),
         page=page,total_pages=total_pages,total_count=total_count)
 
 @app.route("/toggle-theme")
 def toggle_theme():
-    session["dark"] = not session.get("dark",False)
+    themes = ["light","dark","pink"]
+    current = session.get("theme","light")
+    next_idx = (themes.index(current) + 1) % len(themes)
+    session["theme"] = themes[next_idx]
+    return redirect(request.referrer or url_for("home"))
+
+@app.route("/set-theme/<theme_name>")
+def set_theme(theme_name):
+    if theme_name in ("light","dark","pink"):
+        session["theme"] = theme_name
     return redirect(request.referrer or url_for("home"))
 
 # ── ADD PRODUCT ───────────────────────────────────────────────
@@ -486,7 +495,7 @@ def add():
                       request.form["category"],request.form["subcategory"],request.form["description"],photo_path))
         conn.commit(); conn.close()
         flash("Товар добавлен!","success"); return redirect(url_for("home"))
-    return render_template("add.html",subcategories=SUBCATEGORIES,cart_count=get_cart_count(),dark=get_dark(),user=user)
+    return render_template("add.html",subcategories=SUBCATEGORIES,cart_count=get_cart_count(),theme=get_theme(),user=user)
 
 # ── PRODUCT PAGE ──────────────────────────────────────────────
 @app.route("/product/<int:pid>")
@@ -497,18 +506,19 @@ def product_page(pid):
     seller = conn.execute("SELECT * FROM users WHERE id=?",(product["seller_id"],)).fetchone()
     conn.close()
     return render_template("product.html",product=product,sizes=SIZES,
-        favorites=get_favorites_ids(),cart_count=get_cart_count(),dark=get_dark(),seller=seller,user=current_user())
+        favorites=get_favorites_ids(),cart_count=get_cart_count(),theme=get_theme(),seller=seller,user=current_user())
 
 # ── CART ──────────────────────────────────────────────────────
 @app.route("/cart")
 def cart():
     cart_data = session.get("cart",{}); items=[]; total=0
     for key,qty in cart_data.items():
-        pid,size = (key.split("_")+[""])[:2]; product = get_product(int(pid))
+        parts = key.split("_", 1); pid = parts[0]; size = parts[1] if len(parts) > 1 else ""
+        product = get_product(int(pid))
         if product:
             subtotal = product["price"]*qty
             items.append({"product":product,"qty":qty,"size":size,"subtotal":subtotal,"key":key}); total+=subtotal
-    return render_template("cart.html",items=items,total=total,cart_count=get_cart_count(),dark=get_dark(),user=current_user())
+    return render_template("cart.html",items=items,total=total,cart_count=get_cart_count(),theme=get_theme(),user=current_user())
 
 @app.route("/cart/add/<int:pid>", methods=["GET","POST"])
 def cart_add(pid):
@@ -528,24 +538,31 @@ def cart_add(pid):
 @app.route("/cart/remove/<key>")
 def cart_remove(key):
     cart = session.get("cart",{}); cart.pop(key,None); session["cart"] = cart
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return jsonify({"ok": True, "count": sum(cart.values())})
     return redirect(url_for("cart"))
 
 @app.route("/cart/update/<key>")
 def cart_update(key):
     qty = request.args.get("qty", "1")
     cart = session.get("cart", {})
-    if qty.isdigit() and int(qty) > 0: cart[key] = int(qty)
+    if qty.isdigit() and 0 < int(qty) <= 99: cart[key] = int(qty)
     elif qty == "0": cart.pop(key, None)
     session["cart"] = cart
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return jsonify({"ok": True, "count": sum(cart.values())})
     return redirect(url_for("cart"))
 
 @app.route("/cart/clear")
 def cart_clear():
-    session["cart"] = {}; return redirect(url_for("cart"))
+    session["cart"] = {}
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return jsonify({"ok": True, "count": 0})
+    return redirect(url_for("cart"))
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template("404.html", dark=get_dark(), user=current_user()), 404
+    return render_template("404.html", theme=get_theme(), user=current_user()), 404
 
 # ── ORDER ─────────────────────────────────────────────────────
 @app.route("/order", methods=["GET","POST"])
@@ -555,10 +572,14 @@ def order():
         flash("Войдите в аккаунт, чтобы оформить заказ","error"); return redirect(url_for("login"))
     cart_data = session.get("cart",{}); items=[]; total=0
     for key,qty in cart_data.items():
-        pid,size = (key.split("_")+[""])[:2]; product = get_product(int(pid))
+        parts = key.split("_", 1); pid = parts[0]; size = parts[1] if len(parts) > 1 else ""
+        product = get_product(int(pid))
         if product:
             subtotal = product["price"]*qty
             items.append({"product":product,"qty":qty,"size":size,"subtotal":subtotal,"pid":int(pid)}); total+=subtotal
+    if not items:
+        flash("Корзина пуста — добавьте товары перед оформлением заказа","error")
+        return redirect(url_for("cart"))
     if request.method == "POST":
         if not validate_csrf():
             flash("Ошибка безопасности","error"); return redirect(url_for("order"))
@@ -588,8 +609,8 @@ def order():
         session["cart"] = {}
         sellers_info = [(s["email"],s["name"],s["items"]) for s in sellers_map.values()]
         notify_order(order_id,buyer_name,buyer_email,phone,address,payment,total,items,sellers_info)
-        return render_template("order_success.html",name=buyer_name,dark=get_dark(),user=current_user())
-    return render_template("order.html",items=items,total=total,cart_count=get_cart_count(),dark=get_dark(),user=current_user())
+        return render_template("order_success.html",name=buyer_name,theme=get_theme(),user=current_user())
+    return render_template("order.html",items=items,total=total,cart_count=get_cart_count(),theme=get_theme(),user=current_user())
 
 # ── FAVORITES ─────────────────────────────────────────────────
 @app.route("/favorites")
@@ -598,23 +619,30 @@ def favorites():
     fav_ids = [r["product_id"] for r in conn.execute("SELECT product_id FROM favorites WHERE user_id=?",(user["id"],)).fetchall()] if user else session.get("favorites",[])
     fav_products = [p for p in [conn.execute("SELECT * FROM products WHERE id=?",(fid,)).fetchone() for fid in fav_ids] if p]
     conn.close()
-    return render_template("favorites.html",products=fav_products,cart_count=get_cart_count(),dark=get_dark(),user=user,favorites=fav_ids)
+    return render_template("favorites.html",products=fav_products,cart_count=get_cart_count(),theme=get_theme(),user=user,favorites=fav_ids)
 
 @app.route("/favorites/toggle/<int:pid>")
 def favorites_toggle(pid):
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
     user = current_user()
+    is_fav = False
     if user:
         conn = get_db()
-        if conn.execute("SELECT 1 FROM favorites WHERE user_id=? AND product_id=?",(user["id"],pid)).fetchone():
+        existing = conn.execute("SELECT 1 FROM favorites WHERE user_id=? AND product_id=?",(user["id"],pid)).fetchone()
+        if existing:
             conn.execute("DELETE FROM favorites WHERE user_id=? AND product_id=?",(user["id"],pid))
+            is_fav = False
         else:
             conn.execute("INSERT INTO favorites (user_id,product_id) VALUES (?,?)",(user["id"],pid))
+            is_fav = True
         conn.commit(); conn.close()
     else:
         favs = session.get("favorites",[])
-        if pid in favs: favs.remove(pid)
-        else: favs.append(pid)
+        if pid in favs: favs.remove(pid); is_fav = False
+        else: favs.append(pid); is_fav = True
         session["favorites"] = favs
+    if is_ajax:
+        return jsonify({"ok": True, "is_fav": is_fav})
     return redirect(request.referrer or url_for("home"))
 
 # ── ADMIN ─────────────────────────────────────────────────────
@@ -635,7 +663,7 @@ def admin_dashboard():
     recent_users = conn.execute("SELECT * FROM users ORDER BY created_at DESC LIMIT 5").fetchall()
     conn.close()
     return render_template("admin.html",section="dashboard",stats=stats,
-        recent_orders=recent_orders,recent_users=recent_users,dark=get_dark(),user=current_user())
+        recent_orders=recent_orders,recent_users=recent_users,theme=get_theme(),user=current_user())
 
 @app.route("/admin/users")
 def admin_users():
@@ -643,7 +671,7 @@ def admin_users():
     conn = get_db()
     users = conn.execute("SELECT * FROM users ORDER BY created_at DESC").fetchall()
     stats = get_admin_stats(conn); conn.close()
-    return render_template("admin.html",section="users",users=users,stats=stats,dark=get_dark(),user=current_user())
+    return render_template("admin.html",section="users",users=users,stats=stats,theme=get_theme(),user=current_user())
 
 @app.route("/admin/products")
 def admin_products():
@@ -652,7 +680,7 @@ def admin_products():
     products = conn.execute("""SELECT p.*,u.username as seller_name FROM products p
         LEFT JOIN users u ON p.seller_id=u.id ORDER BY p.created_at DESC""").fetchall()
     stats = get_admin_stats(conn); conn.close()
-    return render_template("admin.html",section="products",products=products,stats=stats,dark=get_dark(),user=current_user())
+    return render_template("admin.html",section="products",products=products,stats=stats,theme=get_theme(),user=current_user())
 
 @app.route("/admin/orders")
 def admin_orders():
@@ -662,7 +690,7 @@ def admin_orders():
         LEFT JOIN users u ON o.buyer_id=u.id ORDER BY o.created_at DESC""").fetchall()
     orders_with_items = [{"order":o,"lines":conn.execute("SELECT * FROM order_items WHERE order_id=?",(o["id"],)).fetchall()} for o in orders]
     stats = get_admin_stats(conn); conn.close()
-    return render_template("admin.html",section="orders",orders=orders_with_items,stats=stats,dark=get_dark(),user=current_user())
+    return render_template("admin.html",section="orders",orders=orders_with_items,stats=stats,theme=get_theme(),user=current_user())
 
 @app.route("/admin/users/role/<int:uid>", methods=["POST"])
 def admin_user_role(uid):
@@ -701,7 +729,7 @@ def admin_product_edit(pid):
     product = conn.execute("SELECT * FROM products WHERE id=?",(pid,)).fetchone()
     stats = get_admin_stats(conn); conn.close()
     return render_template("admin.html",section="product_edit",product=product,
-        subcategories=SUBCATEGORIES,stats=stats,dark=get_dark(),user=current_user())
+        subcategories=SUBCATEGORIES,stats=stats,theme=get_theme(),user=current_user())
 
 @app.route("/admin/orders/status/<int:oid>", methods=["POST"])
 def admin_order_status(oid):

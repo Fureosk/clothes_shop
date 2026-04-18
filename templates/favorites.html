@@ -1,17 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Избранное</title>
+    <meta name="description" content="Избранные товары на Fureoska">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="{{ 'dark' if dark else '' }}">
+<body class="{{ theme }}">
     <header>
         <a href="/" style="text-decoration:none; color:inherit;"><h1>❤️ Избранное</h1></a>
         <div class="header-right">
-            <a href="/toggle-theme" class="icon-btn">{{ '☀️' if dark else '🌙' }}</a>
-            <a href="/" class="icon-btn">← Назад</a>
+            <div class="theme-picker">
+            <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
+            <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
+            <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
+        </div>
+            <a href="javascript:history.back()" class="icon-btn">← Назад</a>
             <a href="/cart" class="icon-btn">🛒 {% if cart_count > 0 %}<span class="badge">{{ cart_count }}</span>{% endif %}</a>
         </div>
     </header>
@@ -32,14 +38,18 @@
                 <p class="desc">{{ product.description }}</p>
                 <p class="price">{{ product.price }} ₽</p>
                 <div class="size-select">
-                    <select id="size-{{ product.id }}">
-                        <option>XS</option><option>S</option><option selected>M</option>
-                        <option>L</option><option>XL</option><option>XXL</option>
+                    <select id="size-{{ product.id }}" onchange="saveSize({{ product.id }}, this.value)">
+                        <option value="XS">XS</option>
+                        <option value="S">S</option>
+                        <option value="M" selected>M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="XXL">XXL</option>
                     </select>
                 </div>
                 <div class="card-actions">
-                    <a href="#" onclick="addToCart({{ product.id }}); return false;" class="btn">🛒 В корзину</a>
-                    <a href="/favorites/toggle/{{ product.id }}" class="fav-btn active">❤️</a>
+                    <button type="button" onclick="addToCart({{ product.id }})" class="btn ajax-cart-btn" data-pid="{{ product.id }}">🛒 В корзину</button>
+                    <button type="button" onclick="toggleFavorite({{ product.id }}, this)" class="fav-btn active" data-pid="{{ product.id }}">❤️</button>
                 </div>
             </div>
         </div>
@@ -49,6 +59,6 @@
     {% if not products %}
     <p class="empty">Нет избранных товаров</p>
     {% endif %}
-<script src="/static/main.js"></script>
+<script src="/static/main.js" defer></script>
 </body>
 </html>

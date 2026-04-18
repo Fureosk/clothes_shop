@@ -1,15 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Оформление заказа</title>
+    <meta name="description" content="Оформите заказ на Fureoska">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="{{ 'dark' if dark else '' }}">
+<body class="{{ theme }}">
     <header>
         <a href="/" style="text-decoration:none; color:inherit;"><h1>📦 Оформление заказа</h1></a>
         <div class="header-right">
+            <div class="theme-picker">
+            <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
+            <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
+            <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
+        </div>
             <a href="/cart" class="icon-btn">← Назад в корзину</a>
         </div>
     </header>
@@ -31,13 +38,28 @@
             <form method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <label>Имя</label>
-                <input type="text" name="name" placeholder="Ваше имя" required>
+                <input type="text" name="name" placeholder="Ваше имя" value="{{ user.username if user else '' }}" required>
 
                 <label>Телефон</label>
-                <input type="tel" name="phone" placeholder="+7 (999) 999-99-99" required>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <select name="phone_code" style="width:110px; flex-shrink:0;">
+                        <option value="+7">🇷🇺 +7</option>
+                        <option value="+380">🇺🇦 +380</option>
+                        <option value="+375">🇧🇾 +375</option>
+                        <option value="+77">🇰🇿 +77</option>
+                        <option value="+374">🇦🇲 +374</option>
+                        <option value="+995">🇬🇪 +995</option>
+                        <option value="+998">🇺🇿 +998</option>
+                        <option value="+49">🇩🇪 +49</option>
+                        <option value="+44">🇬🇧 +44</option>
+                        <option value="+1">🇺🇸 +1</option>
+                    </select>
+                    <input type="tel" name="phone" placeholder="999 999-99-99"
+                           pattern="[0-9\s\-\(\)]{7,15}" required style="flex:1;">
+                </div>
 
                 <label>Email</label>
-                <input type="email" name="email" placeholder="example@mail.ru" required>
+                <input type="email" name="email" placeholder="example@mail.ru" value="{{ user.email if user else '' }}" required>
 
                 <label>Адрес доставки</label>
                 <textarea name="address" placeholder="Город, улица, дом, квартира" required></textarea>
@@ -55,5 +77,6 @@
             </form>
         </div>
     </div>
+<script src="/static/main.js" defer></script>
 </body>
 </html>

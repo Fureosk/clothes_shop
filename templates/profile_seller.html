@@ -1,16 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мой магазин — {{ user.shop_name }}</title>
+    <meta name="description" content="Личный кабинет продавца на Fureoska">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="{{ 'dark' if dark else '' }}">
+<body class="{{ theme }}">
     <header>
         <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 Fureoska</h1></a>
         <div class="header-right">
-            <a href="/toggle-theme" class="icon-btn">{{ '☀️' if dark else '🌙' }}</a>
+            <div class="theme-picker">
+            <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
+            <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
+            <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
+        </div>
             <a href="/cart" class="icon-btn">🛒 {% if cart_count > 0 %}<span class="badge">{{ cart_count }}</span>{% endif %}</a>
             {% if user.username == 'fureoska' %}
             <a href="/admin" class="btn" style="background:#1a1a2e;">⚙️ Админка</a>
@@ -55,8 +61,8 @@
 
     <!-- Tabs -->
     <div class="profile-tabs">
-        <button class="ptab active" onclick="showTab('products')">📦 Мои товары</button>
-        <button class="ptab" onclick="showTab('orders')">📋 История заказов</button>
+        <button type="button" class="ptab active" onclick="showTab('products', this)">📦 Мои товары</button>
+        <button type="button" class="ptab" onclick="showTab('orders', this)">📋 История заказов</button>
     </div>
 
     <!-- Products Tab -->
@@ -82,7 +88,7 @@
                     <p class="price">{{ product.price }} ₽</p>
                     <div class="card-actions">
                         <a href="/product/{{ product.id }}" class="btn-outline" style="font-size:12px; padding:6px 12px;">Просмотр</a>
-                        <a href="/product/delete/{{ product.id }}" class="remove-btn" onclick="return confirm('Удалить товар?')">🗑️</a>
+                        <button type="button" class="remove-btn" onclick="deleteProduct({{ product.id }})">🗑️</button>
                     </div>
                 </div>
             </div>
@@ -119,6 +125,13 @@
         <p class="empty">Заказов пока нет</p>
         {% endif %}
     </div>
-<script src="/static/main.js"></script>
+
+<script>
+function deleteProduct(pid) {
+  if(!confirm('Удалить товар?')) return;
+  window.location.href = '/product/delete/' + pid;
+}
+</script>
+<script src="/static/main.js" defer></script>
 </body>
 </html>

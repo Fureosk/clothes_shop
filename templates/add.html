@@ -1,16 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Добавить товар</title>
+    <meta name="description" content="Добавьте новый товар в магазин Fureoska">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="{{ 'dark' if dark else '' }}">
+<body class="{{ theme }}">
     <header>
         <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 Fureoska</h1></a>
         <div class="header-right">
-            <a href="/" class="icon-btn">← Назад</a>
+            <div class="theme-picker">
+            <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
+            <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
+            <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
+        </div>
+            {% if user %}<a href="/cart" class="icon-btn" id="cart-link">🛒 <span id="cart-badge-wrap">{% if cart_count > 0 %}<span class="badge" id="cart-badge">{{ cart_count }}</span>{% endif %}</span></a>{% endif %}
+            <a href="javascript:history.back()" class="icon-btn">← Назад</a>
         </div>
     </header>
 
@@ -60,6 +68,6 @@
             </button>
         </form>
     </div>
-<script src="/static/main.js"></script>
+<script src="/static/main.js" defer></script>
 </body>
 </html>

@@ -1,19 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Корзина</title>
+    <meta name="description" content="Ваша корзина покупок на Fureoska">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="{{ 'dark' if dark else '' }}">
+<body class="{{ theme }}">
     <header>
         <a href="/" style="text-decoration:none; color:inherit;"><h1>🛒 Корзина</h1></a>
         <div class="header-right">
-            <a href="/toggle-theme" class="icon-btn">{{ '☀️' if dark else '🌙' }}</a>
+            <div class="theme-picker">
+            <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
+            <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
+            <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
+        </div>
             <a href="javascript:history.back()" class="icon-btn">← Назад</a>
         </div>
     </header>
+
+    <div id="cart-toast" class="cart-toast" style="display:none;"></div>
 
     {% if items %}
     <div class="cart-container">
@@ -27,20 +35,20 @@
                 <p class="category-tag">{{ item.product.category }} — {{ item.product.subcategory }}</p>
                 <p>Размер: <strong>{{ item.size }}</strong></p>
                 <div class="qty-controls">
-                    <a href="/cart/update/{{ item.key }}?qty={{ item.qty - 1 }}" class="qty-btn">−</a>
+                    <button type="button" class="qty-btn" onclick="cartMinus('{{ item.key }}', {{ item.qty }})">−</button>
                     <span class="qty-num">{{ item.qty }}</span>
-                    <a href="/cart/update/{{ item.key }}?qty={{ item.qty + 1 }}" class="qty-btn">+</a>
+                    <button type="button" class="qty-btn" onclick="cartUpdate('{{ item.key }}', {{ [item.qty + 1, 99] | min }})">+</button>
                 </div>
                 <p class="price">{{ item.product.price }} ₽ × {{ item.qty }} = <strong>{{ item.subtotal }} ₽</strong></p>
             </div>
-            <a href="/cart/remove/{{ item.key }}" class="remove-btn">✕</a>
+            <button type="button" class="remove-btn" onclick="cartRemove('{{ item.key }}')">✕</button>
         </div>
         {% endfor %}
 
         <div class="cart-total">
             <h2>Итого: {{ total }} ₽</h2>
             <div class="cart-btns">
-                <a href="/cart/clear" class="btn-outline">Очистить</a>
+                <button type="button" class="btn-outline" onclick="cartClear()">Очистить</button>
                 <a href="/order" class="btn">Оформить заказ →</a>
             </div>
         </div>
@@ -48,5 +56,35 @@
     {% else %}
     <p class="empty">Корзина пуста</p>
     {% endif %}
+
+<script>
+function cartUpdate(key, qty) {
+  if (qty < 1) return;
+  if (qty > 99) qty = 99;
+  fetch('/cart/update/' + key + '?qty=' + qty, {headers:{'X-Requested-With':'XMLHttpRequest'}})
+    .then(function(r){return r.json();})
+    .then(function(d){ if(d.ok) { document.body.style.transition='none'; window.location.reload(); } });
+}
+function cartMinus(key, currentQty) {
+  if (currentQty <= 1) {
+    if (!confirm('Удалить товар из корзины?')) return;
+    cartRemove(key);
+  } else {
+    cartUpdate(key, currentQty - 1);
+  }
+}
+function cartRemove(key) {
+  fetch('/cart/remove/' + key, {headers:{'X-Requested-With':'XMLHttpRequest'}})
+    .then(function(r){return r.json();})
+    .then(function(d){ if(d.ok) { document.body.style.transition='none'; window.location.reload(); } });
+}
+function cartClear() {
+  if(!confirm('Очистить корзину?')) return;
+  fetch('/cart/clear', {headers:{'X-Requested-With':'XMLHttpRequest'}})
+    .then(function(r){return r.json();})
+    .then(function(d){ if(d.ok) { document.body.style.transition='none'; window.location.reload(); } });
+}
+</script>
+<script src="/static/main.js" defer></script>
 </body>
 </html>

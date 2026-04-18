@@ -1,14 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Регистрация — Fureoska</title>
+    <meta name="description" content="Создайте аккаунт на Fureoska">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="{{ 'dark' if dark else '' }}">
+<body class="{{ theme }}">
     <header>
         <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 Fureoska</h1></a>
+        <div class="header-right">
+            <div class="theme-picker">
+            <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
+            <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
+            <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
+        </div>
+            <a href="javascript:history.back()" class="icon-btn">← Назад</a>
+        </div>
     </header>
 
     <div class="auth-page">
@@ -30,7 +40,7 @@
                 <input type="email" name="email" placeholder="email@example.com" required>
 
                 <label>Пароль</label>
-                <input type="password" name="password" placeholder="Минимум 6 символов" required>
+                <input type="password" name="password" placeholder="Минимум 6 символов" autocomplete="new-password" required>
 
                 <label>Тип аккаунта</label>
                 <div class="role-picker">
@@ -66,6 +76,6 @@
             <p class="auth-switch">Уже есть аккаунт? <a href="/login">Войти</a></p>
         </div>
     </div>
-<script src="/static/main.js"></script>
+<script src="/static/main.js" defer></script>
 </body>
 </html>

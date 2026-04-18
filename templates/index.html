@@ -6,7 +6,7 @@
     <title>{{ 'Fureoska Clothing Store' if lang == 'en' else 'Магазин одежды Fureoska' }}</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="{{ 'dark' if dark else '' }}">
+<body class="{{ theme }}">
     <header>
         <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 {{ 'Fureoska Clothing Store' if lang == 'en' else 'Магазин одежды Fureoska' }}</h1></a>
         <div class="header-right">
@@ -14,9 +14,14 @@
                 <input type="text" name="search" placeholder="{{ '🔍 Search...' if lang == 'en' else '🔍 Поиск...' }}" value="{{ search }}">
                 <input type="hidden" name="category" value="{{ current }}">
                 <input type="hidden" name="subcategory" value="{{ subcategory }}">
+                <input type="hidden" name="page" value="1">
                 <button type="submit">{{ 'Search' if lang == 'en' else 'Найти' }}</button>
             </form>
-            <a href="/toggle-theme" class="icon-btn">{{ '☀️' if dark else '🌙' }}</a>
+            <div class="theme-picker">
+                <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
+                <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
+                <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
+            </div>
             <a href="/set-lang/{{ 'ru' if lang == 'en' else 'en' }}" class="icon-btn">{{ '🇬🇧 EN' if lang == 'ru' else '🇷🇺 RU' }}</a>
             {% if user %}
                 <a href="/profile" class="icon-btn">👤 {{ user.username }}</a>
@@ -138,10 +143,10 @@
                     </select>
                 </div>
                 <div class="card-actions">
-                    <button onclick="addToCart({{ product.id }})" class="btn ajax-cart-btn" data-pid="{{ product.id }}">🛒 {{ 'Add to cart' if lang == 'en' else 'В корзину' }}</button>
-                    <a href="/favorites/toggle/{{ product.id }}" class="fav-btn {% if product.id in favorites %}active{% endif %}">
+                    <button type="button" onclick="addToCart({{ product.id }})" class="btn ajax-cart-btn" data-pid="{{ product.id }}">🛒 {{ 'Add to cart' if lang == 'en' else 'В корзину' }}</button>
+                    <button type="button" onclick="toggleFavorite({{ product.id }}, this)" class="fav-btn {% if product.id in favorites %}active{% endif %}" data-pid="{{ product.id }}">
                         {% if product.id in favorites %}❤️{% else %}🤍{% endif %}
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>

@@ -1,21 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мой профиль — Fureoska</title>
+    <meta name="description" content="Личный кабинет покупателя на Fureoska">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="{{ 'dark' if dark else '' }}">
+<body class="{{ theme }}">
     <header>
         <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 Fureoska</h1></a>
         <div class="header-right">
-            <a href="/toggle-theme" class="icon-btn">{{ '☀️' if dark else '🌙' }}</a>
+            <div class="theme-picker">
+            <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
+            <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
+            <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
+        </div>
             <a href="/favorites" class="icon-btn">❤️</a>
             <a href="/cart" class="icon-btn">🛒 {% if cart_count > 0 %}<span class="badge">{{ cart_count }}</span>{% endif %}</a>
             <a href="/logout" class="icon-btn">Выйти</a>
         </div>
     </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}">{{ msg }}</div>
+        {% endfor %}
+    {% endwith %}
 
     <!-- Profile Header -->
     <div class="profile-header">
@@ -25,6 +37,7 @@
             <p class="profile-username">{{ user.email }} · <span class="role-badge buyer">Покупатель</span></p>
             <p class="profile-date">На сайте с {{ user.created_at[:10] }}</p>
         </div>
+        <a href="/profile/edit" class="btn-outline">✏️ Редактировать</a>
     </div>
 
     <!-- Stats -->
@@ -41,8 +54,8 @@
 
     <!-- Tabs -->
     <div class="profile-tabs">
-        <button class="ptab active" onclick="showTab('orders')">📋 История заказов</button>
-        <button class="ptab" onclick="showTab('favorites')">❤️ Избранное</button>
+        <button type="button" class="ptab active" onclick="showTab('orders', this)">📋 История заказов</button>
+        <button type="button" class="ptab" onclick="showTab('favorites', this)">❤️ Избранное</button>
     </div>
 
     <!-- Orders Tab -->
@@ -67,7 +80,7 @@
             {% endfor %}
         </div>
         {% else %}
-        <p class="empty">У вас пока нет заказов. <a href="/">Перейти в магазин</a></p>
+        <p class="empty">У вас пока нет заказов. <a href="/shop">Перейти в магазин</a></p>
         {% endif %}
     </div>
 
@@ -87,19 +100,30 @@
                 <div class="card-body">
                     <div class="category-tag">{{ product.category }} — {{ product.subcategory }}</div>
                     <h2>{{ product.name }}</h2>
+                    <p class="desc">{{ product.description }}</p>
                     <p class="price">{{ product.price }} ₽</p>
+                    <div class="size-select">
+                        <select id="size-{{ product.id }}" onchange="saveSize({{ product.id }}, this.value)">
+                            <option value="XS">XS</option>
+                            <option value="S">S</option>
+                            <option value="M" selected>M</option>
+                            <option value="L">L</option>
+                            <option value="XL">XL</option>
+                            <option value="XXL">XXL</option>
+                        </select>
+                    </div>
                     <div class="card-actions">
-                        <a href="#" onclick="addToCart({{ product.id }}); return false;" class="btn">🛒 В корзину</a>
-                        <a href="/favorites/toggle/{{ product.id }}" class="fav-btn active">❤️</a>
+                        <button type="button" onclick="addToCart({{ product.id }})" class="btn ajax-cart-btn" data-pid="{{ product.id }}">🛒 В корзину</button>
+                        <button type="button" onclick="toggleFavorite({{ product.id }}, this)" class="fav-btn active" data-pid="{{ product.id }}">❤️</button>
                     </div>
                 </div>
             </div>
             {% endfor %}
         </div>
         {% else %}
-        <p class="empty">Нет избранных товаров. <a href="/">Найти что-то красивое</a></p>
+        <p class="empty">Нет избранных товаров. <a href="/shop">Найти что-то красивое</a></p>
         {% endif %}
     </div>
-<script src="/static/main.js"></script>
+<script src="/static/main.js" defer></script>
 </body>
 </html>
