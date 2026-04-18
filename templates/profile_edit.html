@@ -143,27 +143,6 @@
             </button>
         </form>
     </div>
-
-    <script>
-        function togglePw(id, btn) {
-            var inp = document.getElementById(id);
-            inp.type = inp.type === 'password' ? 'text' : 'password';
-            btn.textContent = inp.type === 'text' ? '🙈' : '👁';
-        }
-        document.getElementById('editForm').addEventListener('submit', function(e) {
-            var np = document.getElementById('new_pw').value;
-            var cp = document.getElementById('conf_pw').value;
-            if (np && np !== cp) {
-                e.preventDefault();
-                document.getElementById('pw-match-hint').style.display = 'block';
-                document.getElementById('conf_pw').focus();
-            }
-        });
-        document.getElementById('conf_pw').addEventListener('input', function() {
-            var np = document.getElementById('new_pw').value;
-            document.getElementById('pw-match-hint').style.display =
-                (np && this.value && np !== this.value) ? 'block' : 'none';
-        });
-    </script>
+<script src="/static/main.js"></script>
 </body>
 </html>

@@ -1128,3 +1128,50 @@ body.dark .cart-toast { background: #e44; }
 .upload-hint { font-size: 12px; color: #aaa; margin-top: 6px; }
 body.dark .photo-preview { background: #0f3460; }
 body.dark .clear-photo-btn { background: #3b0f0f; color: #fca5a5; }
+
+
+/* ══════════════════════════════════════
+   АНИМАЦИИ
+══════════════════════════════════════ */
+
+.card { transition: box-shadow 0.2s ease, transform 0.2s ease !important; }
+.card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(0,0,0,0.13); }
+body.dark .card:hover { box-shadow: 0 8px 28px rgba(0,0,0,0.5); }
+
+/* Scroll reveal через JS-классы */
+.fur-hidden { opacity: 0; transform: translateY(22px); transition: opacity 0.5s ease, transform 0.5s ease !important; }
+.fur-visible { opacity: 1 !important; transform: translateY(0) !important; }
+.fur-d0 { transition-delay: 0.00s !important; }
+.fur-d1 { transition-delay: 0.08s !important; }
+.fur-d2 { transition-delay: 0.16s !important; }
+.fur-d3 { transition-delay: 0.24s !important; }
+
+/* Hover кнопок */
+.btn { transition: background 0.18s, transform 0.15s, box-shadow 0.18s !important; }
+.btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 16px rgba(0,0,0,0.18); }
+.btn:active:not(:disabled) { transform: scale(0.97); }
+.btn-outline { transition: background 0.18s, transform 0.15s, border-color 0.18s !important; }
+.btn-outline:hover { transform: translateY(-2px); }
+.icon-btn { transition: background 0.15s, transform 0.15s !important; }
+.icon-btn:hover { transform: translateY(-1px); }
+
+/* Избранное */
+.fav-btn { display: inline-block; transition: transform 0.15s ease !important; }
+.fav-btn:hover { transform: scale(1.25); }
+.fav-btn:active { transform: scale(0.9); }
+
+/* Категории */
+.cat-card { transition: background 0.2s, transform 0.2s, box-shadow 0.2s !important; }
+.cat-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.10); }
+
+/* Сортировка / пагинация */
+.sort-btn { transition: background 0.15s, transform 0.15s !important; }
+.sort-btn:hover { transform: translateY(-1px); }
+.page-btn { transition: background 0.15s, transform 0.15s !important; }
+.page-btn:hover:not(.active) { transform: translateY(-1px); }
+
+/* Flash */
+@keyframes flashSlideIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+.flash { animation: flashSlideIn 0.3s ease both; }
+
+/* Плавное появление страницы — управляется через body.style в main.js */

@@ -119,14 +119,6 @@
         <p class="empty">Заказов пока нет</p>
         {% endif %}
     </div>
-
-    <script>
-        function showTab(name) {
-            document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
-            document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
-            document.getElementById('tab-' + name).style.display = 'block';
-            event.target.classList.add('active');
-        }
-    </script>
+<script src="/static/main.js"></script>
 </body>
 </html>

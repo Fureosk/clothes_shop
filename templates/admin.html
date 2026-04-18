@@ -358,11 +358,9 @@
 </div>
 
 <script>
-const subcats={{ subcategories|tojson if subcategories else '{}' }};
-function updateSubs(){const c=document.getElementById('cat'),s=document.getElementById('sub');if(!c||!s)return;const cur=s.value;s.innerHTML='';(subcats[c.value]||[]).forEach(v=>{const o=document.createElement('option');o.value=o.textContent=v;if(v===cur)o.selected=true;s.appendChild(o);});}
-function filterTable(id,q){const lq=q.toLowerCase();document.querySelectorAll('#'+id+' tbody tr').forEach(r=>{if(r.classList.contains('oi-row'))return;r.style.display=r.textContent.toLowerCase().includes(lq)?'':'none';});}
-function toggleItems(id){const r=document.getElementById('oi-'+id);r.style.display=r.style.display==='none'?'':'none';}
-function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('open');}
+// Серверная переменная — нужна для updateSubs() в main.js
+var subcats={{ subcategories|tojson if subcategories else '{}' }};
 </script>
+<script src="/static/main.js"></script>
 </body>
 </html>

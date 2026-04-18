@@ -66,14 +66,6 @@
             <p class="auth-switch">Уже есть аккаунт? <a href="/login">Войти</a></p>
         </div>
     </div>
-
-    <script>
-        document.querySelectorAll('input[name="role"]').forEach(r => {
-            r.addEventListener('change', () => {
-                document.getElementById('seller-fields').style.display =
-                    r.value === 'seller' ? 'block' : 'none';
-            });
-        });
-    </script>
+<script src="/static/main.js"></script>
 </body>
 </html>

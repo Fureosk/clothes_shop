@@ -60,47 +60,6 @@
             </button>
         </form>
     </div>
-
-    <script>
-        const subcategories = {
-            "Мужская": ["Верхняя одежда", "Футболки", "Брюки", "Обувь"],
-            "Женская": ["Платья", "Юбки", "Блузки", "Обувь"],
-            "Детская": ["Верхняя одежда", "Футболки", "Брюки", "Обувь"],
-        };
-
-        function updateSubcategories() {
-            var cat = document.getElementById("category").value;
-            var sub = document.getElementById("subcategory");
-            sub.innerHTML = "";
-            subcategories[cat].forEach(function(s) {
-                var opt = document.createElement("option");
-                opt.value = s; opt.textContent = s;
-                sub.appendChild(opt);
-            });
-        }
-        updateSubcategories();
-
-        function previewPhoto(e) {
-            var file = e.target.files[0];
-            if (!file) return;
-            var maxMB = 5;
-            if (file.size > maxMB * 1024 * 1024) {
-                alert("Файл слишком большой. Максимум " + maxMB + " МБ.");
-                e.target.value = ""; return;
-            }
-            var reader = new FileReader();
-            reader.onload = function(ev) {
-                document.getElementById("preview-img").src = ev.target.result;
-                document.getElementById("photo-preview").style.display = "flex";
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function clearPhoto() {
-            document.getElementById("photoInput").value = "";
-            document.getElementById("photo-preview").style.display = "none";
-            document.getElementById("preview-img").src = "";
-        }
-    </script>
+<script src="/static/main.js"></script>
 </body>
 </html>
