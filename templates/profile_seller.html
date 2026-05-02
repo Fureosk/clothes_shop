@@ -88,7 +88,10 @@
                     <p class="price">{{ product.price }} ₽</p>
                     <div class="card-actions">
                         <a href="/product/{{ product.id }}" class="btn-outline" style="font-size:12px; padding:6px 12px;">Просмотр</a>
-                        <button type="button" class="remove-btn" onclick="deleteProduct({{ product.id }})">🗑️</button>
+                        <form method="POST" action="/product/delete/{{ product.id }}" style="display:inline;" onsubmit="return confirm('Удалить товар?')">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="remove-btn">🗑️</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -126,12 +129,7 @@
         {% endif %}
     </div>
 
-<script>
-function deleteProduct(pid) {
-  if(!confirm('Удалить товар?')) return;
-  window.location.href = '/product/delete/' + pid;
-}
-</script>
+
 <script src="/static/main.js" defer></script>
 </body>
 </html>
