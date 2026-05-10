@@ -3,4 +3,4 @@ __pycache__/
 static/uploads/
 fix.py
 .env
-seckret_key
+.secret_key
