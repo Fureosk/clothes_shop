@@ -6,11 +6,28 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 import secrets
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # python-dotenv не установлен — переменные берутся из окружения
+
 app = Flask(__name__)
+app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5 MB upload limit
 
 # ── Безопасность: берём из переменных окружения ──────────────
-app.secret_key = os.environ.get("SECRET_KEY", secrets.token_hex(32))
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "13101977")
+_secret = os.environ.get("SECRET_KEY")
+if not _secret:
+    _secret_file = os.path.join(BASE_DIR if 'BASE_DIR' in dir() else os.path.dirname(os.path.abspath(__file__)), ".secret_key")
+    try:
+        _secret = open(_secret_file).read().strip()
+    except FileNotFoundError:
+        _secret = secrets.token_hex(32)
+        open(_secret_file, "w").write(_secret)
+app.secret_key = _secret
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
+if not ADMIN_PASSWORD:
+    import warnings; warnings.warn("ADMIN_PASSWORD env var is not set! Using insecure default.")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB = os.path.join(BASE_DIR, "shop.db")
@@ -192,9 +209,9 @@ def admin_required():
 # ── EMAIL ────────────────────────────────────────────────────
 SMTP_HOST     = "smtp.gmail.com"
 SMTP_PORT     = 587
-SMTP_USER     = os.environ.get("SMTP_USER", "fureoskwork@gmail.com")
-SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "mzhz cahr udkq qinu")
-ADMIN_EMAIL   = os.environ.get("ADMIN_EMAIL", "fureoskwork@gmail.com")
+SMTP_USER     = os.environ.get("SMTP_USER", "")
+SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
+ADMIN_EMAIL   = os.environ.get("ADMIN_EMAIL", "")
 
 def send_email(to, subject, body):
     import smtplib
@@ -260,6 +277,8 @@ def register():
         email    = request.form["email"].strip()
         password = request.form["password"]
         role     = request.form["role"]
+        if role not in ("buyer", "seller"):
+            role = "buyer"
         shop_name= request.form.get("shop_name","").strip()
         shop_desc= request.form.get("shop_desc","").strip()
         if not username or not email or not password:
@@ -276,7 +295,7 @@ def register():
         except sqlite3.IntegrityError:
             flash("Такой логин или email уже занят","error"); return redirect(url_for("register"))
         finally: conn.close()
-    return render_template("register.html",theme=get_theme())
+    return render_template("register.html",theme=get_theme(),lang=get_lang())
 
 @app.route("/login", methods=["GET","POST"])
 def login():
@@ -292,7 +311,7 @@ def login():
             session["user_id"] = user["id"]
             flash("Добро пожаловать!","success"); return redirect(url_for("home"))
         flash("Неверный логин или пароль","error"); return redirect(url_for("login"))
-    return render_template("login.html",theme=get_theme())
+    return render_template("login.html",theme=get_theme(),lang=get_lang())
 
 @app.route("/logout")
 def logout():
@@ -317,7 +336,7 @@ def profile():
         conn.close()
         return render_template("profile_seller.html",user=user,products=products_list,
             total_sales=total_sales,orders_count=orders_count,recent_orders=recent_orders,
-            cart_count=get_cart_count(),theme=get_theme())
+            cart_count=get_cart_count(),theme=get_theme(),lang=get_lang())
     else:
         orders = conn.execute("SELECT * FROM orders WHERE buyer_id=? ORDER BY created_at DESC",(user["id"],)).fetchall()
         orders_with_items = [{"order":o,"lines":conn.execute("SELECT * FROM order_items WHERE order_id=?",(o["id"],)).fetchall()} for o in orders]
@@ -325,7 +344,7 @@ def profile():
         fav_products = [p for p in [conn.execute("SELECT * FROM products WHERE id=?",(fid,)).fetchone() for fid in fav_ids] if p]
         conn.close()
         return render_template("profile_buyer.html",user=user,orders=orders_with_items,
-            favorites=fav_products,cart_count=get_cart_count(),theme=get_theme())
+            favorites=fav_products,cart_count=get_cart_count(),theme=get_theme(),lang=get_lang())
 
 @app.route("/profile/edit", methods=["GET","POST"])
 def profile_edit():
@@ -386,7 +405,7 @@ def profile_edit():
 
         conn.commit(); conn.close()
         flash("Профиль обновлён ✓","success"); return redirect(url_for("profile"))
-    return render_template("profile_edit.html",user=user,theme=get_theme())
+    return render_template("profile_edit.html",user=user,theme=get_theme(),lang=get_lang())
 
 @app.route("/seller/<int:uid>")
 def seller_page(uid):
@@ -396,12 +415,14 @@ def seller_page(uid):
     products_list = conn.execute("SELECT * FROM products WHERE seller_id=? ORDER BY created_at DESC",(uid,)).fetchall()
     conn.close()
     return render_template("seller_page.html",seller=seller,products=products_list,
-        favorites=get_favorites_ids(),cart_count=get_cart_count(),theme=get_theme(),current_user=current_user())
+        favorites=get_favorites_ids(),cart_count=get_cart_count(),theme=get_theme(),lang=get_lang(),current_user=current_user())
 
-@app.route("/product/delete/<int:pid>")
+@app.route("/product/delete/<int:pid>", methods=["POST"])
 def product_delete(pid):
     user = current_user()
     if not user or user["role"] not in ("seller","admin"): return redirect(url_for("home"))
+    if not validate_csrf():
+        flash("Ошибка безопасности","error"); return redirect(url_for("profile"))
     conn = get_db()
     conn.execute("DELETE FROM products WHERE id=? AND seller_id=?",(pid,user["id"]))
     conn.commit(); conn.close()
@@ -495,7 +516,7 @@ def add():
                       request.form["category"],request.form["subcategory"],request.form["description"],photo_path))
         conn.commit(); conn.close()
         flash("Товар добавлен!","success"); return redirect(url_for("home"))
-    return render_template("add.html",subcategories=SUBCATEGORIES,cart_count=get_cart_count(),theme=get_theme(),user=user)
+    return render_template("add.html",subcategories=SUBCATEGORIES,cart_count=get_cart_count(),theme=get_theme(),user=user,lang=get_lang())
 
 # ── PRODUCT PAGE ──────────────────────────────────────────────
 @app.route("/product/<int:pid>")
@@ -506,7 +527,7 @@ def product_page(pid):
     seller = conn.execute("SELECT * FROM users WHERE id=?",(product["seller_id"],)).fetchone()
     conn.close()
     return render_template("product.html",product=product,sizes=SIZES,
-        favorites=get_favorites_ids(),cart_count=get_cart_count(),theme=get_theme(),seller=seller,user=current_user())
+        favorites=get_favorites_ids(),cart_count=get_cart_count(),theme=get_theme(),seller=seller,user=current_user(),lang=get_lang())
 
 # ── CART ──────────────────────────────────────────────────────
 @app.route("/cart")
@@ -518,7 +539,7 @@ def cart():
         if product:
             subtotal = product["price"]*qty
             items.append({"product":product,"qty":qty,"size":size,"subtotal":subtotal,"key":key}); total+=subtotal
-    return render_template("cart.html",items=items,total=total,cart_count=get_cart_count(),theme=get_theme(),user=current_user())
+    return render_template("cart.html",items=items,total=total,cart_count=get_cart_count(),theme=get_theme(),user=current_user(),lang=get_lang())
 
 @app.route("/cart/add/<int:pid>", methods=["GET","POST"])
 def cart_add(pid):
@@ -535,25 +556,25 @@ def cart_add(pid):
         return jsonify({"ok": True, "count": sum(cart.values()), "msg": "Добавлено в корзину!"})
     return redirect(request.referrer or url_for("home"))
 
-@app.route("/cart/remove/<key>")
+@app.route("/cart/remove/<key>", methods=["GET","POST"])
 def cart_remove(key):
     cart = session.get("cart",{}); cart.pop(key,None); session["cart"] = cart
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
         return jsonify({"ok": True, "count": sum(cart.values())})
     return redirect(url_for("cart"))
 
-@app.route("/cart/update/<key>")
+@app.route("/cart/update/<key>", methods=["GET","POST"])
 def cart_update(key):
-    qty = request.args.get("qty", "1")
+    qty = request.args.get("qty") or request.form.get("qty","1")
     cart = session.get("cart", {})
-    if qty.isdigit() and 0 < int(qty) <= 99: cart[key] = int(qty)
+    if str(qty).isdigit() and 0 < int(qty) <= 99: cart[key] = int(qty)
     elif qty == "0": cart.pop(key, None)
     session["cart"] = cart
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
         return jsonify({"ok": True, "count": sum(cart.values())})
     return redirect(url_for("cart"))
 
-@app.route("/cart/clear")
+@app.route("/cart/clear", methods=["GET","POST"])
 def cart_clear():
     session["cart"] = {}
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
@@ -562,7 +583,7 @@ def cart_clear():
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template("404.html", theme=get_theme(), user=current_user()), 404
+    return render_template("404.html", theme=get_theme(), user=current_user(), lang=get_lang()), 404
 
 # ── ORDER ─────────────────────────────────────────────────────
 @app.route("/order", methods=["GET","POST"])
@@ -609,8 +630,8 @@ def order():
         session["cart"] = {}
         sellers_info = [(s["email"],s["name"],s["items"]) for s in sellers_map.values()]
         notify_order(order_id,buyer_name,buyer_email,phone,address,payment,total,items,sellers_info)
-        return render_template("order_success.html",name=buyer_name,theme=get_theme(),user=current_user())
-    return render_template("order.html",items=items,total=total,cart_count=get_cart_count(),theme=get_theme(),user=current_user())
+        return render_template("order_success.html",name=buyer_name,theme=get_theme(),user=current_user(),lang=get_lang())
+    return render_template("order.html",items=items,total=total,cart_count=get_cart_count(),theme=get_theme(),user=current_user(),lang=get_lang())
 
 # ── FAVORITES ─────────────────────────────────────────────────
 @app.route("/favorites")
@@ -619,7 +640,7 @@ def favorites():
     fav_ids = [r["product_id"] for r in conn.execute("SELECT product_id FROM favorites WHERE user_id=?",(user["id"],)).fetchall()] if user else session.get("favorites",[])
     fav_products = [p for p in [conn.execute("SELECT * FROM products WHERE id=?",(fid,)).fetchone() for fid in fav_ids] if p]
     conn.close()
-    return render_template("favorites.html",products=fav_products,cart_count=get_cart_count(),theme=get_theme(),user=user,favorites=fav_ids)
+    return render_template("favorites.html",products=fav_products,cart_count=get_cart_count(),theme=get_theme(),user=user,favorites=fav_ids,lang=get_lang())
 
 @app.route("/favorites/toggle/<int:pid>")
 def favorites_toggle(pid):
@@ -646,7 +667,7 @@ def favorites_toggle(pid):
     return redirect(request.referrer or url_for("home"))
 
 # ── ADMIN ─────────────────────────────────────────────────────
-@app.route("/admin/reset-products")
+@app.route("/admin/reset-products", methods=["POST"])
 def admin_reset_products():
     if not admin_required(): return redirect(url_for("home"))
     conn = get_db(); conn.execute("DELETE FROM products"); conn.commit(); conn.close()
@@ -663,7 +684,7 @@ def admin_dashboard():
     recent_users = conn.execute("SELECT * FROM users ORDER BY created_at DESC LIMIT 5").fetchall()
     conn.close()
     return render_template("admin.html",section="dashboard",stats=stats,
-        recent_orders=recent_orders,recent_users=recent_users,theme=get_theme(),user=current_user())
+        recent_orders=recent_orders,recent_users=recent_users,theme=get_theme(),user=current_user(),lang=get_lang())
 
 @app.route("/admin/users")
 def admin_users():
@@ -671,7 +692,7 @@ def admin_users():
     conn = get_db()
     users = conn.execute("SELECT * FROM users ORDER BY created_at DESC").fetchall()
     stats = get_admin_stats(conn); conn.close()
-    return render_template("admin.html",section="users",users=users,stats=stats,theme=get_theme(),user=current_user())
+    return render_template("admin.html",section="users",users=users,stats=stats,theme=get_theme(),user=current_user(),lang=get_lang())
 
 @app.route("/admin/products")
 def admin_products():
@@ -680,7 +701,7 @@ def admin_products():
     products = conn.execute("""SELECT p.*,u.username as seller_name FROM products p
         LEFT JOIN users u ON p.seller_id=u.id ORDER BY p.created_at DESC""").fetchall()
     stats = get_admin_stats(conn); conn.close()
-    return render_template("admin.html",section="products",products=products,stats=stats,theme=get_theme(),user=current_user())
+    return render_template("admin.html",section="products",products=products,stats=stats,theme=get_theme(),user=current_user(),lang=get_lang())
 
 @app.route("/admin/orders")
 def admin_orders():
@@ -690,7 +711,7 @@ def admin_orders():
         LEFT JOIN users u ON o.buyer_id=u.id ORDER BY o.created_at DESC""").fetchall()
     orders_with_items = [{"order":o,"lines":conn.execute("SELECT * FROM order_items WHERE order_id=?",(o["id"],)).fetchall()} for o in orders]
     stats = get_admin_stats(conn); conn.close()
-    return render_template("admin.html",section="orders",orders=orders_with_items,stats=stats,theme=get_theme(),user=current_user())
+    return render_template("admin.html",section="orders",orders=orders_with_items,stats=stats,theme=get_theme(),user=current_user(),lang=get_lang())
 
 @app.route("/admin/users/role/<int:uid>", methods=["POST"])
 def admin_user_role(uid):
@@ -701,7 +722,7 @@ def admin_user_role(uid):
         flash("Роль обновлена","success")
     return redirect(url_for("admin_users"))
 
-@app.route("/admin/users/delete/<int:uid>")
+@app.route("/admin/users/delete/<int:uid>", methods=["POST"])
 def admin_user_delete(uid):
     if not admin_required(): return redirect(url_for("home"))
     conn = get_db()
@@ -711,7 +732,7 @@ def admin_user_delete(uid):
     conn.commit(); conn.close()
     flash("Пользователь удалён","success"); return redirect(url_for("admin_users"))
 
-@app.route("/admin/products/delete/<int:pid>")
+@app.route("/admin/products/delete/<int:pid>", methods=["POST"])
 def admin_product_delete(pid):
     if not admin_required(): return redirect(url_for("home"))
     conn = get_db(); conn.execute("DELETE FROM products WHERE id=?",(pid,)); conn.commit(); conn.close()
@@ -729,7 +750,7 @@ def admin_product_edit(pid):
     product = conn.execute("SELECT * FROM products WHERE id=?",(pid,)).fetchone()
     stats = get_admin_stats(conn); conn.close()
     return render_template("admin.html",section="product_edit",product=product,
-        subcategories=SUBCATEGORIES,stats=stats,theme=get_theme(),user=current_user())
+        subcategories=SUBCATEGORIES,stats=stats,theme=get_theme(),user=current_user(),lang=get_lang())
 
 @app.route("/admin/orders/status/<int:oid>", methods=["POST"])
 def admin_order_status(oid):

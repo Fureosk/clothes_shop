@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Корзина</title>
-    <meta name="description" content="Ваша корзина покупок на Fureoska">
+    <title>{{ 'Cart' if lang == 'en' else 'Корзина' }}</title>
+    <meta name="description" content="{{ 'Your shopping cart on Fureoska' if lang == 'en' else 'Ваша корзина покупок на Fureoska' }}">
     <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body class="{{ theme }}">
     <header>
-        <a href="/" style="text-decoration:none; color:inherit;"><h1>🛒 Корзина</h1></a>
+        <a href="/" style="text-decoration:none; color:inherit;"><h1>🛒 {{ 'Cart' if lang == 'en' else 'Корзина' }}</h1></a>
         <div class="header-right">
             <div class="theme-picker">
-            <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
-            <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
-            <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
-        </div>
-            <a href="/shop" class="icon-btn">← Назад</a>
+                <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
+                <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
+                <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
+            </div>
+            <a href="/set-lang/{{ 'ru' if lang == 'en' else 'en' }}" class="icon-btn">{{ '🇬🇧 EN' if lang == 'ru' else '🇷🇺 RU' }}</a>
+            <a href="/shop" class="icon-btn">← {{ 'Back to shop' if lang == 'en' else 'В магазин' }}</a>
         </div>
     </header>
 
@@ -33,7 +34,7 @@
             <div class="cart-info">
                 <h2>{{ item.product.name }}</h2>
                 <p class="category-tag">{{ item.product.category }} — {{ item.product.subcategory }}</p>
-                <p>Размер: <strong>{{ item.size }}</strong></p>
+                <p>{{ 'Size:' if lang == 'en' else 'Размер:' }} <strong>{{ item.size }}</strong></p>
                 <div class="qty-controls">
                     <button type="button" class="qty-btn" onclick="cartMinus('{{ item.key }}', {{ item.qty }})">−</button>
                     <span class="qty-num">{{ item.qty }}</span>
@@ -46,15 +47,15 @@
         {% endfor %}
 
         <div class="cart-total">
-            <h2>Итого: {{ total }} ₽</h2>
+            <h2>{{ 'Total:' if lang == 'en' else 'Итого:' }} {{ total }} ₽</h2>
             <div class="cart-btns">
-                <button type="button" class="btn-outline" onclick="cartClear()">Очистить</button>
-                <a href="/order" class="btn">Оформить заказ →</a>
+                <button type="button" class="btn-outline" onclick="cartClear()">{{ 'Clear cart' if lang == 'en' else 'Очистить' }}</button>
+                <a href="/order" class="btn">{{ 'Place order' if lang == 'en' else 'Оформить заказ' }} →</a>
             </div>
         </div>
     </div>
     {% else %}
-    <p class="empty">Корзина пуста</p>
+    <p class="empty">{{ 'Cart is empty' if lang == 'en' else 'Корзина пуста' }}</p>
     {% endif %}
 
 <script>
@@ -67,7 +68,7 @@ function cartUpdate(key, qty) {
 }
 function cartMinus(key, currentQty) {
   if (currentQty <= 1) {
-    if (!confirm('Удалить товар из корзины?')) return;
+    if (!confirm('{{ "Remove item from cart?" if lang == "en" else "Удалить товар из корзины?" }}')) return;
     cartRemove(key);
   } else {
     cartUpdate(key, currentQty - 1);
@@ -79,7 +80,7 @@ function cartRemove(key) {
     .then(function(d){ if(d.ok) { document.body.style.transition='none'; window.location.reload(); } });
 }
 function cartClear() {
-  if(!confirm('Очистить корзину?')) return;
+  if(!confirm('{{ "Clear cart?" if lang == "en" else "Очистить корзину?" }}')) return;
   fetch('/cart/clear', {headers:{'X-Requested-With':'XMLHttpRequest'}})
     .then(function(r){return r.json();})
     .then(function(d){ if(d.ok) { document.body.style.transition='none'; window.location.reload(); } });

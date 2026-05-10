@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ seller.shop_name }} — Fureoska</title>
-    <meta name="description" content="Магазин продавца на Fureoska">
+    <meta name="description" content="{{ 'Seller shop on Fureoska' if lang == 'en' else 'Магазин продавца на Fureoska' }}">
     <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/static/style.css">
 </head>
@@ -13,17 +13,18 @@
         <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 Fureoska</h1></a>
         <div class="header-right">
             <div class="theme-picker">
-            <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
-            <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
-            <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
-        </div>
+                <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
+                <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
+                <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
+            </div>
+            <a href="/set-lang/{{ 'ru' if lang == 'en' else 'en' }}" class="icon-btn">{{ '🇬🇧 EN' if lang == 'ru' else '🇷🇺 RU' }}</a>
             {% if current_user %}
                 <a href="/profile" class="icon-btn">👤 {{ current_user.username }}</a>
             {% else %}
-                <a href="/login" class="icon-btn">Войти</a>
+                <a href="/login" class="icon-btn">{{ 'Sign in' if lang == 'en' else 'Войти' }}</a>
             {% endif %}
             <a href="/cart" class="icon-btn">🛒 {% if cart_count > 0 %}<span class="badge">{{ cart_count }}</span>{% endif %}</a>
-            <a href="javascript:history.back()" class="icon-btn">← Назад</a>
+            <a href="javascript:history.back()" class="icon-btn">← {{ 'Back' if lang == 'en' else 'Назад' }}</a>
         </div>
     </header>
 
@@ -31,21 +32,21 @@
         <div class="profile-avatar seller-avatar">🏪</div>
         <div class="profile-info">
             <h1>{{ seller.shop_name }}</h1>
-            <p class="profile-username">@{{ seller.username }} · <span class="role-badge seller">Продавец</span></p>
+            <p class="profile-username">@{{ seller.username }} · <span class="role-badge seller">{{ 'Seller' if lang == 'en' else 'Продавец' }}</span></p>
             <p class="profile-desc">{{ seller.shop_desc or '' }}</p>
-            <p class="profile-date">На сайте с {{ seller.created_at[:10] }}</p>
+            <p class="profile-date">{{ 'On site since' if lang == 'en' else 'На сайте с' }} {{ seller.created_at[:10] }}</p>
         </div>
     </div>
 
     <div class="stats-row">
         <div class="stat-card">
             <div class="stat-num">{{ products|length }}</div>
-            <div class="stat-label">Товаров</div>
+            <div class="stat-label">{{ 'Products' if lang == 'en' else 'Товаров' }}</div>
         </div>
     </div>
 
     <div class="tab-header" style="padding: 0 30px 10px;">
-        <h2>Товары магазина</h2>
+        <h2>{{ 'Shop products' if lang == 'en' else 'Товары магазина' }}</h2>
     </div>
 
     {% if products %}
@@ -56,7 +57,7 @@
                 {% if product.photo %}
                     <img src="{{ product.photo }}" alt="{{ product.name }}">
                 {% else %}
-                    <div class="no-photo">Нет фото</div>
+                    <div class="no-photo">{{ 'No photo' if lang == 'en' else 'Нет фото' }}</div>
                 {% endif %}
             </a>
             <div class="card-body">
@@ -71,7 +72,7 @@
                     </select>
                 </div>
                 <div class="card-actions">
-                    <button type="button" onclick="addToCart({{ product.id }})" class="btn ajax-cart-btn" data-pid="{{ product.id }}">🛒 В корзину</button>
+                    <button type="button" onclick="addToCart({{ product.id }})" class="btn ajax-cart-btn" data-pid="{{ product.id }}">🛒 {{ 'Add to cart' if lang == 'en' else 'В корзину' }}</button>
                     <button type="button" onclick="toggleFavorite({{ product.id }}, this)" class="fav-btn {% if product.id in favorites %}active{% endif %}" data-pid="{{ product.id }}">
                         {% if product.id in favorites %}❤️{% else %}🤍{% endif %}
                     </button>
@@ -81,7 +82,7 @@
         {% endfor %}
     </div>
     {% else %}
-    <p class="empty">В этом магазине пока нет товаров</p>
+    <p class="empty">{{ 'This shop has no products yet' if lang == 'en' else 'В этом магазине пока нет товаров' }}</p>
     {% endif %}
 <script src="/static/main.js" defer></script>
 </body>

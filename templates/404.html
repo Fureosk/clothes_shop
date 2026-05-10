@@ -3,22 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 — Страница не найдена</title>
+    <title>404 — {{ 'Page not found' if lang == 'en' else 'Страница не найдена' }}</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body class="{{ theme }}">
     <header>
         <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 Fureoska</h1></a>
+        <div class="header-right">
+            <div class="theme-picker">
+                <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
+                <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
+                <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
+            </div>
+            <a href="/set-lang/{{ 'ru' if lang == 'en' else 'en' }}" class="icon-btn">{{ '🇬🇧 EN' if lang == 'ru' else '🇷🇺 RU' }}</a>
+        </div>
     </header>
 
     <div class="success-page">
         <div class="success-box">
             <div style="font-size: 80px;">🔍</div>
             <h1>404</h1>
-            <p>Такой страницы не существует или она была удалена.</p>
-            <a href="/" class="btn" style="margin-top: 20px; display: inline-block;">← Вернуться в магазин</a>
+            <p>{{ 'This page does not exist or has been removed.' if lang == 'en' else 'Такой страницы не существует или она была удалена.' }}</p>
+            <a href="/" class="btn" style="margin-top: 20px; display: inline-block;">← {{ 'Back to shop' if lang == 'en' else 'Вернуться в магазин' }}</a>
             <br>
-            <a href="javascript:history.back()" class="btn-outline" style="margin-top: 12px; display: inline-block;">↩ Назад</a>
+            <a href="javascript:history.back()" class="btn-outline" style="margin-top: 12px; display: inline-block;">↩ {{ 'Go back' if lang == 'en' else 'Назад' }}</a>
         </div>
     </div>
 </body>

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вход — Fureoska</title>
-    <meta name="description" content="Войдите в аккаунт Fureoska">
+    <title>{{ 'Login' if lang == 'en' else 'Вход' }} — Fureoska</title>
+    <meta name="description" content="{{ 'Log in to your Fureoska account' if lang == 'en' else 'Войдите в аккаунт Fureoska' }}">
     <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/static/style.css">
 </head>
@@ -13,17 +13,18 @@
         <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 Fureoska</h1></a>
         <div class="header-right">
             <div class="theme-picker">
-            <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
-            <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
-            <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
-        </div>
-            <a href="/shop" class="icon-btn">← Назад</a>
+                <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
+                <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
+                <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
+            </div>
+            <a href="/set-lang/{{ 'ru' if lang == 'en' else 'en' }}" class="icon-btn">{{ '🇬🇧 EN' if lang == 'ru' else '🇷🇺 RU' }}</a>
+            <a href="/shop" class="icon-btn">← {{ 'Back' if lang == 'en' else 'Назад' }}</a>
         </div>
     </header>
 
     <div class="auth-page">
         <div class="auth-box">
-            <h2>Войти в аккаунт</h2>
+            <h2>{{ 'Sign in' if lang == 'en' else 'Войти в аккаунт' }}</h2>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% for cat, msg in messages %}
@@ -33,18 +34,21 @@
 
             <form method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <label>Логин или Email</label>
-                <input type="text" name="login" placeholder="username или email" required>
+                <label>{{ 'Login or Email' if lang == 'en' else 'Логин или Email' }}</label>
+                <input type="text" name="login" placeholder="username {{ 'or' if lang == 'en' else 'или' }} email" required>
 
-                <label>Пароль</label>
-                <input type="password" name="password" placeholder="Пароль" autocomplete="current-password" required>
+                <label>{{ 'Password' if lang == 'en' else 'Пароль' }}</label>
+                <input type="password" name="password" placeholder="{{ 'Password' if lang == 'en' else 'Пароль' }}" autocomplete="current-password" required>
 
                 <button type="submit" class="btn" style="width:100%; margin-top:20px; padding:12px;">
-                    Войти
+                    {{ 'Sign in' if lang == 'en' else 'Войти' }}
                 </button>
             </form>
 
-            <p class="auth-switch">Нет аккаунта? <a href="/register">Зарегистрироваться</a></p>
+            <p class="auth-switch">
+                {{ "Don't have an account?" if lang == 'en' else 'Нет аккаунта?' }}
+                <a href="/register">{{ 'Sign up' if lang == 'en' else 'Зарегистрироваться' }}</a>
+            </p>
         </div>
     </div>
 <script src="/static/main.js" defer></script>

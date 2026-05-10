@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Добавить товар</title>
-    <meta name="description" content="Добавьте новый товар в магазин Fureoska">
+    <title>{{ 'Add product' if lang == 'en' else 'Добавить товар' }}</title>
+    <meta name="description" content="{{ 'Add a new product to Fureoska' if lang == 'en' else 'Добавьте новый товар в магазин Fureoska' }}">
     <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/static/style.css">
 </head>
@@ -13,17 +13,18 @@
         <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 Fureoska</h1></a>
         <div class="header-right">
             <div class="theme-picker">
-            <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
-            <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
-            <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
-        </div>
+                <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
+                <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
+                <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
+            </div>
+            <a href="/set-lang/{{ 'ru' if lang == 'en' else 'en' }}" class="icon-btn">{{ '🇬🇧 EN' if lang == 'ru' else '🇷🇺 RU' }}</a>
             {% if user %}<a href="/cart" class="icon-btn" id="cart-link">🛒 <span id="cart-badge-wrap">{% if cart_count > 0 %}<span class="badge" id="cart-badge">{{ cart_count }}</span>{% endif %}</span></a>{% endif %}
-            <a href="javascript:history.back()" class="icon-btn">← Назад</a>
+            <a href="javascript:history.back()" class="icon-btn">← {{ 'Back' if lang == 'en' else 'Назад' }}</a>
         </div>
     </header>
 
     <div class="form-container">
-        <h2 style="margin-bottom:20px;">➕ Добавить товар</h2>
+        <h2 style="margin-bottom:20px;">➕ {{ 'Add product' if lang == 'en' else 'Добавить товар' }}</h2>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% for cat, msg in messages %}
@@ -34,37 +35,37 @@
         <form method="POST" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-            <label>Название товара</label>
-            <input type="text" name="name" placeholder="Например: Пуховик зимний" required>
+            <label>{{ 'Product name' if lang == 'en' else 'Название товара' }}</label>
+            <input type="text" name="name" placeholder="{{ 'E.g.: Winter jacket' if lang == 'en' else 'Например: Пуховик зимний' }}" required>
 
-            <label>Цена (₽)</label>
-            <input type="number" name="price" placeholder="Например: 3999" min="1" required>
+            <label>{{ 'Price (₽)' if lang == 'en' else 'Цена (₽)' }}</label>
+            <input type="number" name="price" placeholder="{{ 'E.g.: 3999' if lang == 'en' else 'Например: 3999' }}" min="1" required>
 
-            <label>Категория</label>
+            <label>{{ 'Category' if lang == 'en' else 'Категория' }}</label>
             <select name="category" id="category" onchange="updateSubcategories()">
                 <option>Мужская</option>
                 <option>Женская</option>
                 <option>Детская</option>
             </select>
 
-            <label>Подкатегория</label>
+            <label>{{ 'Subcategory' if lang == 'en' else 'Подкатегория' }}</label>
             <select name="subcategory" id="subcategory"></select>
 
-            <label>Описание</label>
-            <textarea name="description" placeholder="Краткое описание товара" style="height:80px;"></textarea>
+            <label>{{ 'Description' if lang == 'en' else 'Описание' }}</label>
+            <textarea name="description" placeholder="{{ 'Brief product description' if lang == 'en' else 'Краткое описание товара' }}" style="height:80px;"></textarea>
 
-            <label>Фото товара</label>
+            <label>{{ 'Product photo' if lang == 'en' else 'Фото товара' }}</label>
             <div class="photo-upload-wrap">
                 <input type="file" name="photo" accept=".png,.jpg,.jpeg,.gif,.webp" id="photoInput" onchange="previewPhoto(event)">
                 <div id="photo-preview" class="photo-preview" style="display:none;">
                     <img id="preview-img" src="" alt="Превью">
-                    <button type="button" onclick="clearPhoto()" class="clear-photo-btn">✕ Удалить</button>
+                    <button type="button" onclick="clearPhoto()" class="clear-photo-btn">✕ {{ 'Remove' if lang == 'en' else 'Удалить' }}</button>
                 </div>
-                <p class="upload-hint">PNG, JPG, GIF или WEBP · до 5 МБ</p>
+                <p class="upload-hint">PNG, JPG, GIF {{ 'or' if lang == 'en' else 'или' }} WEBP · {{ 'up to 5 MB' if lang == 'en' else 'до 5 МБ' }}</p>
             </div>
 
             <button type="submit" class="btn" style="width:100%; margin-top:20px; padding:14px; font-size:15px;">
-                Добавить товар
+                {{ 'Add product' if lang == 'en' else 'Добавить товар' }}
             </button>
         </form>
     </div>

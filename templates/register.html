@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Регистрация — Fureoska</title>
-    <meta name="description" content="Создайте аккаунт на Fureoska">
+    <title>{{ 'Register' if lang == 'en' else 'Регистрация' }} — Fureoska</title>
+    <meta name="description" content="{{ 'Create an account on Fureoska' if lang == 'en' else 'Создайте аккаунт на Fureoska' }}">
     <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/static/style.css">
 </head>
@@ -13,17 +13,18 @@
         <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 Fureoska</h1></a>
         <div class="header-right">
             <div class="theme-picker">
-            <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
-            <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
-            <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
-        </div>
-            <a href="/shop" class="icon-btn">← Назад</a>
+                <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
+                <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
+                <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
+            </div>
+            <a href="/set-lang/{{ 'ru' if lang == 'en' else 'en' }}" class="icon-btn">{{ '🇬🇧 EN' if lang == 'ru' else '🇷🇺 RU' }}</a>
+            <a href="/shop" class="icon-btn">← {{ 'Back' if lang == 'en' else 'Назад' }}</a>
         </div>
     </header>
 
     <div class="auth-page">
         <div class="auth-box">
-            <h2>Создать аккаунт</h2>
+            <h2>{{ 'Create account' if lang == 'en' else 'Создать аккаунт' }}</h2>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% for cat, msg in messages %}
@@ -33,47 +34,50 @@
 
             <form method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <label>Логин</label>
+                <label>{{ 'Username' if lang == 'en' else 'Логин' }}</label>
                 <input type="text" name="username" placeholder="username" required>
 
                 <label>Email</label>
                 <input type="email" name="email" placeholder="email@example.com" required>
 
-                <label>Пароль</label>
-                <input type="password" name="password" placeholder="Минимум 6 символов" autocomplete="new-password" required>
+                <label>{{ 'Password' if lang == 'en' else 'Пароль' }}</label>
+                <input type="password" name="password" placeholder="{{ 'At least 6 characters' if lang == 'en' else 'Минимум 6 символов' }}" autocomplete="new-password" required>
 
-                <label>Тип аккаунта</label>
+                <label>{{ 'Account type' if lang == 'en' else 'Тип аккаунта' }}</label>
                 <div class="role-picker">
                     <label class="role-card">
                         <input type="radio" name="role" value="buyer" checked>
                         <span>
-                            <strong>🛍️ Покупатель</strong>
-                            <small>Покупаю одежду</small>
+                            <strong>🛍️ {{ 'Buyer' if lang == 'en' else 'Покупатель' }}</strong>
+                            <small>{{ 'I buy clothes' if lang == 'en' else 'Покупаю одежду' }}</small>
                         </span>
                     </label>
                     <label class="role-card">
                         <input type="radio" name="role" value="seller">
                         <span>
-                            <strong>🏪 Продавец</strong>
-                            <small>Продаю одежду</small>
+                            <strong>🏪 {{ 'Seller' if lang == 'en' else 'Продавец' }}</strong>
+                            <small>{{ 'I sell clothes' if lang == 'en' else 'Продаю одежду' }}</small>
                         </span>
                     </label>
                 </div>
 
                 <div id="seller-fields" style="display:none;">
-                    <label>Название магазина</label>
-                    <input type="text" name="shop_name" placeholder="Например: StyleHub">
+                    <label>{{ 'Shop name' if lang == 'en' else 'Название магазина' }}</label>
+                    <input type="text" name="shop_name" placeholder="{{ 'E.g.: StyleHub' if lang == 'en' else 'Например: StyleHub' }}">
 
-                    <label>Описание магазина</label>
-                    <textarea name="shop_desc" placeholder="Пару слов о вашем магазине" style="height:70px;"></textarea>
+                    <label>{{ 'Shop description' if lang == 'en' else 'Описание магазина' }}</label>
+                    <textarea name="shop_desc" placeholder="{{ 'A few words about your shop' if lang == 'en' else 'Пару слов о вашем магазине' }}" style="height:70px;"></textarea>
                 </div>
 
                 <button type="submit" class="btn" style="width:100%; margin-top:20px; padding:12px;">
-                    Зарегистрироваться
+                    {{ 'Sign up' if lang == 'en' else 'Зарегистрироваться' }}
                 </button>
             </form>
 
-            <p class="auth-switch">Уже есть аккаунт? <a href="/login">Войти</a></p>
+            <p class="auth-switch">
+                {{ 'Already have an account?' if lang == 'en' else 'Уже есть аккаунт?' }}
+                <a href="/login">{{ 'Sign in' if lang == 'en' else 'Войти' }}</a>
+            </p>
         </div>
     </div>
 <script src="/static/main.js" defer></script>

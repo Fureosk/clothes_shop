@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Админ — Fureoska</title>
+    <title>{{ "Admin" if lang == "en" else "Админ" }} — Fureoska</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
@@ -180,13 +180,13 @@
     <div class="t-right">
         <button class="mob-tog" onclick="toggleSidebar()">☰</button>
         <a href="/toggle-theme" class="tb">{{ '☀️' if dark else '🌙' }}</a>
-        <a href="/shop" class="tb">🏪 Магазин</a>
-        <a href="/logout" class="tb">Выйти</a>
+        <a href="/shop" class="tb">🏪 {{ "Shop" if lang == "en" else "Магазин" }}</a>
+        <a href="/logout" class="tb">{{ "Logout" if lang == "en" else "Выйти" }}</a>
         <div class="t-user">
             <div class="t-av">👑</div>
             <div>
                 <div class="t-name">{{ user.username }}</div>
-                <div class="t-role">Администратор</div>
+                <div class="t-role">{{ "Administrator" if lang == "en" else "Администратор" }}</div>
             </div>
         </div>
     </div>
@@ -196,21 +196,21 @@
 
 <div style="display:flex;min-height:100vh;padding-top:58px;">
 <aside class="sidebar" id="sidebar">
-    <div class="nav-lbl" style="margin-top:8px;">Главное</div>
-    <a href="/admin" class="nav-item {{ 'active' if section=='dashboard' else '' }}"><span class="nav-ico">📊</span>Дашборд</a>
-    <a href="/admin/users" class="nav-item {{ 'active' if section=='users' else '' }}"><span class="nav-ico">👥</span>Пользователи<span class="nav-badge">{{ stats.users }}</span></a>
-    <a href="/admin/products" class="nav-item {{ 'active' if section in ('products','product_edit') else '' }}"><span class="nav-ico">📦</span>Товары<span class="nav-badge">{{ stats.products }}</span></a>
-    <a href="/admin/orders" class="nav-item {{ 'active' if section=='orders' else '' }}"><span class="nav-ico">🧾</span>Заказы<span class="nav-badge">{{ stats.orders }}</span></a>
+    <div class="nav-lbl" style="margin-top:8px;">{{ "Main" if lang == "en" else "Главное" }}</div>
+    <a href="/admin" class="nav-item {{ 'active' if section=='dashboard' else '' }}"><span class="nav-ico">📊</span>{{ "Dashboard" if lang == "en" else "Дашборд" }}</a>
+    <a href="/admin/users" class="nav-item {{ 'active' if section=='users' else '' }}"><span class="nav-ico">👥</span>{{ "Users" if lang == "en" else "Пользователи" }}<span class="nav-badge">{{ stats.users }}</span></a>
+    <a href="/admin/products" class="nav-item {{ 'active' if section in ('products','product_edit') else '' }}"><span class="nav-ico">📦</span>{{ "Products" if lang == "en" else "Товары" }}<span class="nav-badge">{{ stats.products }}</span></a>
+    <a href="/admin/orders" class="nav-item {{ 'active' if section=='orders' else '' }}"><span class="nav-ico">🧾</span>{{ "Orders" if lang == "en" else "Заказы" }}<span class="nav-badge">{{ stats.orders }}</span></a>
     <div class="s-div"></div>
-    <div class="nav-lbl">Инструменты</div>
-    <a href="/add" class="nav-item"><span class="nav-ico">➕</span>Добавить товар</a>
-    <a href="/admin/reset-products" class="nav-item" onclick="return confirm('Сбросить все товары?')"><span class="nav-ico">🔄</span>Сбросить товары</a>
-    <a href="/" class="nav-item"><span class="nav-ico">🏠</span>На главную</a>
+    <div class="nav-lbl">{{ "Tools" if lang == "en" else "Инструменты" }}</div>
+    <a href="/add" class="nav-item"><span class="nav-ico">➕</span>{{ "Add product" if lang == "en" else "Добавить товар" }}</a>
+    <a href="/admin/reset-products" class="nav-item" onclick="return confirm(lang == 'en' ? 'Reset all products?' : 'Сбросить все товары?')"><span class="nav-ico">🔄</span>{{ "Reset products" if lang == "en" else "Сбросить товары" }}</a>
+    <a href="/" class="nav-item"><span class="nav-ico">🏠</span>{{ "Home" if lang == "en" else "На главную" }}</a>
     <div class="s-div"></div>
     <div class="rev-box">
-        <div class="rev-lbl">Выручка</div>
+        <div class="rev-lbl">{{ "Revenue" if lang == "en" else "Выручка" }}</div>
         <div class="rev-val">{{ "{:,}".format(stats.revenue).replace(",", " ") }} ₽</div>
-        <div class="rev-sub">за всё время</div>
+        <div class="rev-sub">{{ "all time" if lang == "en" else "за всё время" }}</div>
     </div>
 </aside>
 
@@ -225,45 +225,45 @@
 
 {% if section=='dashboard' %}
 <div class="phdr">
-    <div><h1>Добро пожаловать, {{ user.username }} 👋</h1><p>Обзор магазина — все данные в реальном времени</p></div>
+    <div><h1>{{ "Welcome, " if lang == "en" else "Добро пожаловать, " }}{{ user.username }} 👋</h1><p>{{ "Store overview — all data in real time" if lang == "en" else "Обзор магазина — все данные в реальном времени" }}</p></div>
 </div>
 <div class="stat-grid">
-    <div class="scard"><div class="scard-top"><div class="sico r">👥</div></div><div class="sval r">{{ stats.users }}</div><div class="slbl">Пользователей</div></div>
-    <div class="scard"><div class="scard-top"><div class="sico b">🏪</div></div><div class="sval b">{{ stats.sellers }}</div><div class="slbl">Продавцов</div></div>
-    <div class="scard"><div class="scard-top"><div class="sico g">📦</div></div><div class="sval g">{{ stats.products }}</div><div class="slbl">Товаров</div></div>
-    <div class="scard"><div class="scard-top"><div class="sico p">🧾</div></div><div class="sval p">{{ stats.orders }}</div><div class="slbl">Заказов</div></div>
-    <div class="scard"><div class="scard-top"><div class="sico o">💰</div></div><div class="sval o" style="font-size:20px;">{{ "{:,}".format(stats.revenue).replace(",", " ") }}</div><div class="slbl">Выручка (₽)</div></div>
+    <div class="scard"><div class="scard-top"><div class="sico r">👥</div></div><div class="sval r">{{ stats.users }}</div><div class="slbl">{{ "Users" if lang == "en" else "Пользователей" }}</div></div>
+    <div class="scard"><div class="scard-top"><div class="sico b">🏪</div></div><div class="sval b">{{ stats.sellers }}</div><div class="slbl">{{ "Sellers" if lang == "en" else "Продавцов" }}</div></div>
+    <div class="scard"><div class="scard-top"><div class="sico g">📦</div></div><div class="sval g">{{ stats.products }}</div><div class="slbl">{{ "Products" if lang == "en" else "Товаров" }}</div></div>
+    <div class="scard"><div class="scard-top"><div class="sico p">🧾</div></div><div class="sval p">{{ stats.orders }}</div><div class="slbl">{{ "Orders" if lang == "en" else "Заказов" }}</div></div>
+    <div class="scard"><div class="scard-top"><div class="sico o">💰</div></div><div class="sval o" style="font-size:20px;">{{ "{:,}".format(stats.revenue).replace(",", " ") }}</div><div class="slbl">{{ "Revenue (₽)" if lang == "en" else "Выручка (₽)" }}</div></div>
 </div>
 <div class="qgrid">
-    <a href="/admin/users" class="qbtn pr"><span class="qico">👥</span>Пользователи</a>
-    <a href="/admin/products" class="qbtn"><span class="qico">📦</span>Товары</a>
-    <a href="/admin/orders" class="qbtn"><span class="qico">🧾</span>Заказы</a>
-    <a href="/add" class="qbtn"><span class="qico">➕</span>Добавить товар</a>
+    <a href="/admin/users" class="qbtn pr"><span class="qico">👥</span>{{ "Users" if lang == "en" else "Пользователи" }}</a>
+    <a href="/admin/products" class="qbtn"><span class="qico">📦</span>{{ "Products" if lang == "en" else "Товары" }}</a>
+    <a href="/admin/orders" class="qbtn"><span class="qico">🧾</span>{{ "Orders" if lang == "en" else "Заказы" }}</a>
+    <a href="/add" class="qbtn"><span class="qico">➕</span>{{ "Add product" if lang == "en" else "Добавить товар" }}</a>
 </div>
 <div class="dash-grid">
     <div class="dcard">
-        <h3>🧾 Последние заказы</h3>
+        <h3>🧾 {{ "Latest orders" if lang == "en" else "Последние заказы" }}</h3>
         {% if recent_orders %}<ul class="mlist">{% for o in recent_orders %}
         <li><div><div class="ml-name">#{{ o.id }} — {{ o.buyer_name }}</div><div class="ml-sub">{{ o.created_at[:10] }} · {{ o.status }}</div></div><div class="ml-val">{{ o.total }} ₽</div></li>
-        {% endfor %}</ul>{% else %}<div class="empty-s"><div class="ei">🧾</div><p>Заказов пока нет</p></div>{% endif %}
+        {% endfor %}</ul>{% else %}<div class="empty-s"><div class="ei">🧾</div><p>{{ "No orders yet" if lang == "en" else "Заказов пока нет" }}</p></div>{% endif %}
     </div>
     <div class="dcard">
-        <h3>👥 Новые пользователи</h3>
+        <h3>👥 {{ "New users" if lang == "en" else "Новые пользователи" }}</h3>
         {% if recent_users %}<ul class="mlist">{% for u in recent_users %}
         <li><div><div class="ml-name">{{ u.username }}</div><div class="ml-sub">{{ u.email }}</div></div><span class="badge badge-{{ u.role }}">{% if u.role=='admin' %}👑 Админ{% elif u.role=='seller' %}🏪 Продавец{% else %}🛍️ Покупатель{% endif %}</span></li>
-        {% endfor %}</ul>{% else %}<div class="empty-s"><div class="ei">👥</div><p>Нет данных</p></div>{% endif %}
+        {% endfor %}</ul>{% else %}<div class="empty-s"><div class="ei">👥</div><p>{{ "No data" if lang == "en" else "Нет данных" }}</p></div>{% endif %}
     </div>
 </div>
 
 {% elif section=='users' %}
-<div class="phdr"><div><h1>👥 Пользователи</h1><p>{{ stats.users }} всего · {{ stats.sellers }} продавцов · {{ stats.buyers }} покупателей</p></div></div>
+<div class="phdr"><div><h1>👥 {{ "Users" if lang == "en" else "Пользователи" }}</h1><p>{{ stats.users }} {{ "total" if lang == "en" else "всего" }} · {{ stats.sellers }} {{ "sellers" if lang == "en" else "продавцов" }} · {{ stats.buyers }} {{ "buyers" if lang == "en" else "покупателей" }}</p></div></div>
 <div class="card">
     <div class="card-hdr">
-        <span class="card-title">Все пользователи ({{ users|length }})</span>
-        <div class="sbox"><span style="color:var(--muted)">🔍</span><input type="text" placeholder="Поиск..." oninput="filterTable('uT',this.value)"></div>
+        <span class="card-title">{{ "All users" if lang == "en" else "Все пользователи" }} ({{ users|length }})</span>
+        <div class="sbox"><span style="color:var(--muted)">🔍</span><input type="text" placeholder="{{ 'Search...' if lang == 'en' else 'Поиск...' }}" oninput="filterTable('uT',this.value)"></div>
     </div>
     <table id="uT">
-        <thead><tr><th>#</th><th>Пользователь</th><th>Роль</th><th>Магазин</th><th>Дата</th><th>Действия</th></tr></thead>
+        <thead><tr><th>#</th><th>{{ "User" if lang == "en" else "Пользователь" }}</th><th>{{ "Role" if lang == "en" else "Роль" }}</th><th>{{ "Shop" if lang == "en" else "Магазин" }}</th><th>{{ "Date" if lang == "en" else "Дата" }}</th><th>{{ "Actions" if lang == "en" else "Действия" }}</th></tr></thead>
         <tbody>{% for u in users %}<tr>
             <td style="color:var(--muted);font-size:12px">{{ u.id }}</td>
             <td><div style="font-weight:600">{{ u.username }}</div><div style="font-size:12px;color:var(--muted)">{{ u.email }}</div></td>
@@ -272,10 +272,10 @@
             <td style="color:var(--muted);font-size:12px">{{ u.created_at[:10] }}</td>
             <td><div class="acts">
                 <form method="POST" action="/admin/users/role/{{ u.id }}" class="rform">
-                    <select name="role"><option value="buyer" {% if u.role=='buyer' %}selected{% endif %}>🛍️ Покупатель</option><option value="seller" {% if u.role=='seller' %}selected{% endif %}>🏪 Продавец</option><option value="admin" {% if u.role=='admin' %}selected{% endif %}>👑 Админ</option></select>
+                    <select name="role"><option value="buyer" {% if u.role=="buyer" %}selected{% endif %}>🛍️ {{ "Buyer" if lang == "en" else "Покупатель" }}</option><option value="seller" {% if u.role=="seller" %}selected{% endif %}>🏪 {{ "Seller" if lang == "en" else "Продавец" }}</option><option value="admin" {% if u.role=="admin" %}selected{% endif %}>👑 {{ "Admin" if lang == "en" else "Админ" }}</option></select>
                     <button type="submit">✓</button>
                 </form>
-                {% if u.role!='admin' %}<a href="/admin/users/delete/{{ u.id }}" onclick="return confirm('Удалить {{ u.username }}?')" class="act act-d">✕</a>{% endif %}
+                {% if u.role!='admin' %}<a href="/admin/users/delete/{{ u.id }}" onclick="return confirm(lang == 'en' ? 'Delete {{ u.username }}?' : 'Удалить {{ u.username }}?')" class="act act-d">✕</a>{% endif %}
             </div></td>
         </tr>{% endfor %}</tbody>
     </table>
@@ -283,18 +283,18 @@
 
 {% elif section=='products' %}
 <div class="phdr">
-    <div><h1>📦 Товары</h1><p>Каталог: {{ stats.products }} товаров</p></div>
-    <a href="/add" class="btn-save">➕ Добавить</a>
+    <div><h1>📦 {{ "Products" if lang == "en" else "Товары" }}</h1><p>{{ "Catalog:" if lang == "en" else "Каталог:" }} {{ stats.products }} {{ "items" if lang == "en" else "товаров" }}</p></div>
+    <a href="/add" class="btn-save">➕ {{ "Add" if lang == "en" else "Добавить" }}</a>
 </div>
 <div class="card">
     <div class="card-hdr">
-        <span class="card-title">Все товары ({{ products|length }})</span>
+        <span class="card-title">{{ "All products" if lang == "en" else "Все товары" }} ({{ products|length }})</span>
         <div class="hdr-right">
-            <div class="sbox"><span style="color:var(--muted)">🔍</span><input type="text" placeholder="Поиск..." oninput="filterTable('pT',this.value)"></div>
+            <div class="sbox"><span style="color:var(--muted)">🔍</span><input type="text" placeholder="{{ 'Search...' if lang == 'en' else 'Поиск...' }}" oninput="filterTable('pT',this.value)"></div>
         </div>
     </div>
     <table id="pT">
-        <thead><tr><th>#</th><th>Фото</th><th>Товар</th><th>Цена</th><th>Категория</th><th>Продавец</th><th>Действия</th></tr></thead>
+        <thead><tr><th>#</th><th>{{ "Photo" if lang == "en" else "Фото" }}</th><th>{{ "Product" if lang == "en" else "Товар" }}</th><th>{{ "Price" if lang == "en" else "Цена" }}</th><th>{{ "Category" if lang == "en" else "Категория" }}</th><th>{{ "Seller" if lang == "en" else "Продавец" }}</th><th>{{ "Actions" if lang == "en" else "Действия" }}</th></tr></thead>
         <tbody>{% for p in products %}<tr>
             <td style="color:var(--muted);font-size:12px">{{ p.id }}</td>
             <td>{% if p.photo %}<img src="{{ p.photo }}" class="pthumb">{% else %}<div class="nothumb">🧥</div>{% endif %}</td>
@@ -303,45 +303,45 @@
             <td><div style="font-size:13px">{{ p.category }}</div><div style="font-size:11px;color:var(--muted)">{{ p.subcategory }}</div></td>
             <td style="color:var(--muted);font-size:13px">{{ p.seller_name or '—' }}</td>
             <td><div class="acts">
-                <a href="/admin/products/edit/{{ p.id }}" class="act act-e">✏️ Изм.</a>
-                <a href="/admin/products/delete/{{ p.id }}" onclick="return confirm('Удалить «{{ p.name }}»?')" class="act act-d">✕</a>
+                <a href="/admin/products/edit/{{ p.id }}" class="act act-e">✏️ {{ "Edit" if lang == "en" else "Изм." }}</a>
+                <a href="/admin/products/delete/{{ p.id }}" onclick="return confirm(lang == 'en' ? 'Delete "{{ p.name }}"?' : 'Удалить «{{ p.name }}»?')" class="act act-d">✕</a>
             </div></td>
         </tr>{% endfor %}</tbody>
     </table>
 </div>
 
 {% elif section=='product_edit' %}
-<div class="phdr"><div><h1>✏️ Редактировать товар</h1><p><a href="/admin/products" style="color:var(--accent2)">← Назад к товарам</a></p></div></div>
+<div class="phdr"><div><h1>✏️ {{ "Edit product" if lang == "en" else "Редактировать товар" }}</h1><p><a href="/admin/products" style="color:var(--accent2)">← {{ "Back to products" if lang == "en" else "Назад к товарам" }}</a></p></div></div>
 <div class="aform">
     {% if product.photo %}<img src="{{ product.photo }}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:20px">{% endif %}
     <form method="POST">
-        <label>Название</label><input type="text" name="name" value="{{ product.name }}" required>
-        <label>Цена (₽)</label><input type="number" name="price" value="{{ product.price }}" required>
-        <label>Категория</label><select name="category" id="cat" onchange="updateSubs()">{% for cat in subcategories.keys() %}<option {% if product.category==cat %}selected{% endif %}>{{ cat }}</option>{% endfor %}</select>
-        <label>Подкатегория</label><select name="subcategory" id="sub">{% for sub in subcategories.get(product.category,[]) %}<option {% if product.subcategory==sub %}selected{% endif %}>{{ sub }}</option>{% endfor %}</select>
-        <label>Описание</label><textarea name="description">{{ product.description }}</textarea>
-        <div class="form-acts"><button type="submit" class="btn-save">💾 Сохранить</button><a href="/admin/products" class="btn-cancel">Отмена</a></div>
+        <label>{{ "Name" if lang == "en" else "Название" }}</label><input type="text" name="name" value="{{ product.name }}" required>
+        <label>{{ "Price (₽)" if lang == "en" else "Цена (₽)" }}</label><input type="number" name="price" value="{{ product.price }}" required>
+        <label>{{ "Category" if lang == "en" else "Категория" }}</label><select name="category" id="cat" onchange="updateSubs()">{% for cat in subcategories.keys() %}<option {% if product.category==cat %}selected{% endif %}>{{ cat }}</option>{% endfor %}</select>
+        <label>{{ "Subcategory" if lang == "en" else "Подкатегория" }}</label><select name="subcategory" id="sub">{% for sub in subcategories.get(product.category,[]) %}<option {% if product.subcategory==sub %}selected{% endif %}>{{ sub }}</option>{% endfor %}</select>
+        <label>{{ "Description" if lang == "en" else "Описание" }}</label><textarea name="description">{{ product.description }}</textarea>
+        <div class="form-acts"><button type="submit" class="btn-save">💾 {{ "Save" if lang == "en" else "Сохранить" }}</button><a href="/admin/products" class="btn-cancel">{{ "Cancel" if lang == "en" else "Отмена" }}</a></div>
     </form>
 </div>
 
 {% elif section=='orders' %}
-<div class="phdr"><div><h1>🧾 Заказы</h1><p>Всего: {{ stats.orders }} · Выручка: {{ "{:,}".format(stats.revenue).replace(",", " ") }} ₽</p></div></div>
+<div class="phdr"><div><h1>🧾 {{ "Orders" if lang == "en" else "Заказы" }}</h1><p>{{ "Total:" if lang == "en" else "Всего:" }} {{ stats.orders }} · {{ "Revenue:" if lang == "en" else "Выручка:" }} {{ "{:,}".format(stats.revenue).replace(",", " ") }} ₽</p></div></div>
 <div class="card">
     <div class="card-hdr">
-        <span class="card-title">Все заказы ({{ orders|length }})</span>
-        <div class="sbox"><span style="color:var(--muted)">🔍</span><input type="text" placeholder="Поиск..." oninput="filterTable('oT',this.value)"></div>
+        <span class="card-title">{{ "All orders" if lang == "en" else "Все заказы" }} ({{ orders|length }})</span>
+        <div class="sbox"><span style="color:var(--muted)">🔍</span><input type="text" placeholder="{{ 'Search...' if lang == 'en' else 'Поиск...' }}" oninput="filterTable('oT',this.value)"></div>
     </div>
     {% if orders %}
     <table id="oT">
-        <thead><tr><th>#</th><th>Покупатель</th><th>Телефон</th><th>Сумма</th><th>Статус</th><th>Дата</th><th>Позиции</th></tr></thead>
+        <thead><tr><th>#</th><th>{{ "Buyer" if lang == "en" else "Покупатель" }}</th><th>{{ "Phone" if lang == "en" else "Телефон" }}</th><th>{{ "Total" if lang == "en" else "Сумма" }}</th><th>{{ "Status" if lang == "en" else "Статус" }}</th><th>{{ "Date" if lang == "en" else "Дата" }}</th><th>{{ "Items" if lang == "en" else "Позиции" }}</th></tr></thead>
         <tbody>{% for entry in orders %}<tr>
             <td><strong>#{{ entry.order.id }}</strong></td>
             <td><div style="font-weight:600">{{ entry.order.buyer_name }}</div><div style="font-size:12px;color:var(--muted)">{{ entry.order.email }}</div></td>
             <td style="font-size:13px;color:var(--muted)">{{ entry.order.phone }}</td>
             <td style="font-weight:800;color:var(--accent2);font-size:16px">{{ entry.order.total }} ₽</td>
-            <td><form method="POST" action="/admin/orders/status/{{ entry.order.id }}" class="rform"><select name="status">{% for s in ['Новый','В обработке','Отправлен','Доставлен','Отменён'] %}<option {% if entry.order.status==s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select><button type="submit">✓</button></form></td>
+            <td><form method="POST" action="/admin/orders/status/{{ entry.order.id }}" class="rform"><select name="status">{% for s in (['New','Processing','Shipped','Delivered','Cancelled'] if lang == 'en' else ['Новый','В обработке','Отправлен','Доставлен','Отменён']) %}<option {% if entry.order.status==s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select><button type="submit">✓</button></form></td>
             <td style="color:var(--muted);font-size:12px">{{ entry.order.created_at[:10] }}</td>
-            <td><button class="act act-e" onclick="toggleItems({{ entry.order.id }})">📋 {{ entry.lines|length }} поз.</button></td>
+            <td><button class="act act-e" onclick="toggleItems({{ entry.order.id }})">📋 {{ entry.lines|length }} {{ "items" if lang == "en" else "поз." }}</button></td>
         </tr>
         <tr class="oi-row" id="oi-{{ entry.order.id }}" style="display:none"><td colspan="7">
             {% for line in entry.lines %}<div class="oi-line">• {{ line.product_name }} ({{ line.size }}) × {{ line.qty }} = <strong>{{ line.price*line.qty }} ₽</strong></div>{% endfor %}
@@ -349,7 +349,7 @@
         </td></tr>
         {% endfor %}</tbody>
     </table>
-    {% else %}<div class="empty-s"><div class="ei">🧾</div><p>Заказов пока нет</p></div>{% endif %}
+    {% else %}<div class="empty-s"><div class="ei">🧾</div><p>{{ "No orders yet" if lang == "en" else "Заказов пока нет" }}</p></div>{% endif %}
 </div>
 {% endif %}
 
@@ -364,3 +364,4 @@ var subcats={{ subcategories|tojson if subcategories else '{}' }};
 <script src="/static/main.js"></script>
 </body>
 </html>
+

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ product.name }}</title>
-    <meta name="description" content="Купить товар в магазине Fureoska">
+    <meta name="description" content="{{ 'Buy this product at Fureoska' if lang == 'en' else 'Купить товар в магазине Fureoska' }}">
     <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/static/style.css">
 </head>
@@ -13,18 +13,19 @@
         <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 Fureoska</h1></a>
         <div class="header-right">
             <div class="theme-picker">
-            <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
-            <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
-            <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
-        </div>
+                <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
+                <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
+                <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
+            </div>
+            <a href="/set-lang/{{ 'ru' if lang == 'en' else 'en' }}" class="icon-btn">{{ '🇬🇧 EN' if lang == 'ru' else '🇷🇺 RU' }}</a>
             {% if user %}
                 <a href="/profile" class="icon-btn">👤 {{ user.username }}</a>
             {% else %}
-                <a href="/login" class="icon-btn">Войти</a>
+                <a href="/login" class="icon-btn">{{ 'Sign in' if lang == 'en' else 'Войти' }}</a>
             {% endif %}
             <a href="/favorites" class="icon-btn">❤️</a>
             <a href="/cart" class="icon-btn" id="cart-link">🛒 <span id="cart-badge-wrap">{% if cart_count > 0 %}<span class="badge" id="cart-badge">{{ cart_count }}</span>{% endif %}</span></a>
-            <a href="/shop" class="icon-btn">← Назад</a>
+            <a href="/shop" class="icon-btn">← {{ 'Back' if lang == 'en' else 'Назад' }}</a>
         </div>
     </header>
 
@@ -35,7 +36,7 @@
             {% if product.photo %}
                 <img src="{{ product.photo }}" alt="{{ product.name }}">
             {% else %}
-                <div class="no-photo" style="height:400px;">Нет фото</div>
+                <div class="no-photo" style="height:400px;">{{ 'No photo' if lang == 'en' else 'Нет фото' }}</div>
             {% endif %}
         </div>
         <div class="product-details">
@@ -51,7 +52,7 @@
             {% endif %}
 
             <div class="size-picker">
-                <p><strong>Выберите размер:</strong></p>
+                <p><strong>{{ 'Choose size:' if lang == 'en' else 'Выберите размер:' }}</strong></p>
                 <div class="sizes">
                     {% for size in sizes %}
                     <label class="size-label">
@@ -63,7 +64,7 @@
             </div>
 
             <div class="product-actions">
-                <button type="button" onclick="addToCartFromProduct()" class="btn big-btn" id="product-cart-btn" data-pid="{{ product.id }}">🛒 Добавить в корзину</button>
+                <button type="button" onclick="addToCartFromProduct()" class="btn big-btn" id="product-cart-btn" data-pid="{{ product.id }}">🛒 {{ 'Add to cart' if lang == 'en' else 'Добавить в корзину' }}</button>
                 <button type="button" onclick="toggleFavorite({{ product.id }}, this)" class="fav-btn {% if product.id in favorites %}active{% endif %}" data-pid="{{ product.id }}" style="font-size:32px; background:none; border:none; cursor:pointer;">
                     {% if product.id in favorites %}❤️{% else %}🤍{% endif %}
                 </button>
@@ -86,10 +87,10 @@ function addToCartFromProduct() {
   })
   .then(function(r) { return r.json(); })
   .then(function(data) {
-    if (btn) { btn.disabled = false; btn.textContent = '🛒 Добавить в корзину'; }
+    if (btn) { btn.disabled = false; btn.textContent = '🛒 {{ "Add to cart" if lang == "en" else "Добавить в корзину" }}'; }
     if (data.ok) {
       updateCartBadge(data.count);
-      showToast(data.msg || 'Добавлено в корзину!');
+      showToast(data.msg || '{{ "Added to cart!" if lang == "en" else "Добавлено в корзину!" }}');
       animateCartBtn(btn);
       animateBadge();
     } else if (data.redirect) {
@@ -97,8 +98,8 @@ function addToCartFromProduct() {
     }
   })
   .catch(function() {
-    if (btn) { btn.disabled = false; btn.textContent = '🛒 Добавить в корзину'; }
-    showToast('Ошибка, попробуйте снова');
+    if (btn) { btn.disabled = false; btn.textContent = '🛒 {{ "Add to cart" if lang == "en" else "Добавить в корзину" }}'; }
+    showToast('{{ "Error, please try again" if lang == "en" else "Ошибка, попробуйте снова" }}');
   });
 }
 </script>

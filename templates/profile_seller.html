@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мой магазин — {{ user.shop_name }}</title>
-    <meta name="description" content="Личный кабинет продавца на Fureoska">
+    <title>{{ 'My Shop' if lang == 'en' else 'Мой магазин' }} — {{ user.shop_name }}</title>
+    <meta name="description" content="{{ 'Seller account on Fureoska' if lang == 'en' else 'Личный кабинет продавца на Fureoska' }}">
     <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/static/style.css">
 </head>
@@ -13,15 +13,16 @@
         <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 Fureoska</h1></a>
         <div class="header-right">
             <div class="theme-picker">
-            <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
-            <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
-            <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
-        </div>
+                <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
+                <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
+                <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
+            </div>
+            <a href="/set-lang/{{ 'ru' if lang == 'en' else 'en' }}" class="icon-btn">{{ '🇬🇧 EN' if lang == 'ru' else '🇷🇺 RU' }}</a>
             <a href="/cart" class="icon-btn">🛒 {% if cart_count > 0 %}<span class="badge">{{ cart_count }}</span>{% endif %}</a>
             {% if user.username == 'fureoska' %}
-            <a href="/admin" class="btn" style="background:#1a1a2e;">⚙️ Админка</a>
+            <a href="/admin" class="btn" style="background:#1a1a2e;">⚙️ {{ 'Admin' if lang == 'en' else 'Админка' }}</a>
             {% endif %}
-            <a href="/logout" class="icon-btn">Выйти</a>
+            <a href="/logout" class="icon-btn">{{ 'Sign out' if lang == 'en' else 'Выйти' }}</a>
         </div>
     </header>
 
@@ -31,45 +32,41 @@
         {% endfor %}
     {% endwith %}
 
-    <!-- Profile Header -->
     <div class="profile-header">
         <div class="profile-avatar seller-avatar">🏪</div>
         <div class="profile-info">
             <h1>{{ user.shop_name }}</h1>
-            <p class="profile-username">@{{ user.username }} · <span class="role-badge seller">Продавец</span></p>
-            <p class="profile-desc">{{ user.shop_desc or 'Описание магазина не заполнено' }}</p>
-            <p class="profile-date">На сайте с {{ user.created_at[:10] }}</p>
+            <p class="profile-username">@{{ user.username }} · <span class="role-badge seller">{{ 'Seller' if lang == 'en' else 'Продавец' }}</span></p>
+            <p class="profile-desc">{{ user.shop_desc or ('Shop description not filled in' if lang == 'en' else 'Описание магазина не заполнено') }}</p>
+            <p class="profile-date">{{ 'On site since' if lang == 'en' else 'На сайте с' }} {{ user.created_at[:10] }}</p>
         </div>
-        <a href="/profile/edit" class="btn-outline">✏️ Редактировать</a>
+        <a href="/profile/edit" class="btn-outline">✏️ {{ 'Edit' if lang == 'en' else 'Редактировать' }}</a>
     </div>
 
-    <!-- Stats -->
     <div class="stats-row">
         <div class="stat-card">
             <div class="stat-num">{{ products|length }}</div>
-            <div class="stat-label">Товаров</div>
+            <div class="stat-label">{{ 'Products' if lang == 'en' else 'Товаров' }}</div>
         </div>
         <div class="stat-card">
             <div class="stat-num">{{ orders_count }}</div>
-            <div class="stat-label">Заказов</div>
+            <div class="stat-label">{{ 'Orders' if lang == 'en' else 'Заказов' }}</div>
         </div>
         <div class="stat-card">
             <div class="stat-num">{{ "{:,}".format(total_sales).replace(",", " ") }} ₽</div>
-            <div class="stat-label">Продаж</div>
+            <div class="stat-label">{{ 'Sales' if lang == 'en' else 'Продаж' }}</div>
         </div>
     </div>
 
-    <!-- Tabs -->
     <div class="profile-tabs">
-        <button type="button" class="ptab active" onclick="showTab('products', this)">📦 Мои товары</button>
-        <button type="button" class="ptab" onclick="showTab('orders', this)">📋 История заказов</button>
+        <button type="button" class="ptab active" onclick="showTab('products', this)">📦 {{ 'My products' if lang == 'en' else 'Мои товары' }}</button>
+        <button type="button" class="ptab" onclick="showTab('orders', this)">📋 {{ 'Order history' if lang == 'en' else 'История заказов' }}</button>
     </div>
 
-    <!-- Products Tab -->
     <div id="tab-products" class="tab-content">
         <div class="tab-header">
-            <h2>Мои товары ({{ products|length }})</h2>
-            <a href="/add" class="btn">+ Добавить товар</a>
+            <h2>{{ 'My products' if lang == 'en' else 'Мои товары' }} ({{ products|length }})</h2>
+            <a href="/add" class="btn">+ {{ 'Add product' if lang == 'en' else 'Добавить товар' }}</a>
         </div>
         {% if products %}
         <div class="grid">
@@ -79,7 +76,7 @@
                     {% if product.photo %}
                         <img src="{{ product.photo }}" alt="{{ product.name }}">
                     {% else %}
-                        <div class="no-photo">Нет фото</div>
+                        <div class="no-photo">{{ 'No photo' if lang == 'en' else 'Нет фото' }}</div>
                     {% endif %}
                 </a>
                 <div class="card-body">
@@ -87,8 +84,8 @@
                     <h2>{{ product.name }}</h2>
                     <p class="price">{{ product.price }} ₽</p>
                     <div class="card-actions">
-                        <a href="/product/{{ product.id }}" class="btn-outline" style="font-size:12px; padding:6px 12px;">Просмотр</a>
-                        <form method="POST" action="/product/delete/{{ product.id }}" style="display:inline;" onsubmit="return confirm('Удалить товар?')">
+                        <a href="/product/{{ product.id }}" class="btn-outline" style="font-size:12px; padding:6px 12px;">{{ 'View' if lang == 'en' else 'Просмотр' }}</a>
+                        <form method="POST" action="/product/delete/{{ product.id }}" style="display:inline;" onsubmit="return confirm('{{ 'Delete product?' if lang == 'en' else 'Удалить товар?' }}')">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit" class="remove-btn">🗑️</button>
                         </form>
@@ -98,21 +95,20 @@
             {% endfor %}
         </div>
         {% else %}
-        <p class="empty">У вас ещё нет товаров. <a href="/add">Добавьте первый!</a></p>
+        <p class="empty">{{ "You don't have any products yet." if lang == 'en' else 'У вас ещё нет товаров.' }} <a href="/add">{{ 'Add the first one!' if lang == 'en' else 'Добавьте первый!' }}</a></p>
         {% endif %}
     </div>
 
-    <!-- Orders Tab -->
     <div id="tab-orders" class="tab-content" style="display:none;">
         <div class="tab-header">
-            <h2>Последние заказы</h2>
+            <h2>{{ 'Recent orders' if lang == 'en' else 'Последние заказы' }}</h2>
         </div>
         {% if recent_orders %}
         <div class="orders-list">
             {% for o in recent_orders %}
             <div class="order-card">
                 <div class="order-card-header">
-                    <span><strong>Заказ #{{ o.order_id }}</strong></span>
+                    <span><strong>{{ 'Order' if lang == 'en' else 'Заказ' }} #{{ o.order_id }}</strong></span>
                     <span class="order-status">{{ o.status }}</span>
                     <span class="order-date">{{ o.created_at[:10] }}</span>
                 </div>
@@ -125,10 +121,9 @@
             {% endfor %}
         </div>
         {% else %}
-        <p class="empty">Заказов пока нет</p>
+        <p class="empty">{{ 'No orders yet' if lang == 'en' else 'Заказов пока нет' }}</p>
         {% endif %}
     </div>
-
 
 <script src="/static/main.js" defer></script>
 </body>

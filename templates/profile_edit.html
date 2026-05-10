@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Редактировать профиль</title>
-    <meta name="description" content="Редактирование профиля на Fureoska">
+    <title>{{ 'Edit Profile' if lang == 'en' else 'Редактировать профиль' }}</title>
+    <meta name="description" content="{{ 'Edit your profile on Fureoska' if lang == 'en' else 'Редактирование профиля на Fureoska' }}">
     <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/static/style.css">
     <style>
@@ -54,17 +54,18 @@
         <a href="/" style="text-decoration:none; color:inherit;"><h1>👗 Fureoska</h1></a>
         <div class="header-right">
             <div class="theme-picker">
-            <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
-            <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
-            <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
-        </div>
-            <a href="/profile" class="icon-btn">← Назад</a>
+                <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
+                <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
+                <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
+            </div>
+            <a href="/set-lang/{{ 'ru' if lang == 'en' else 'en' }}" class="icon-btn">{{ '🇬🇧 EN' if lang == 'ru' else '🇷🇺 RU' }}</a>
+            <a href="/profile" class="icon-btn">← {{ 'Back' if lang == 'en' else 'Назад' }}</a>
         </div>
     </header>
 
     <div class="form-container">
-        <h2 style="margin-bottom:6px;">✏️ Редактировать профиль</h2>
-        <p style="color:#888; font-size:14px; margin-bottom:24px;">Обновите свои данные</p>
+        <h2 style="margin-bottom:6px;">✏️ {{ 'Edit Profile' if lang == 'en' else 'Редактировать профиль' }}</h2>
+        <p style="color:#888; font-size:14px; margin-bottom:24px;">{{ 'Update your details' if lang == 'en' else 'Обновите свои данные' }}</p>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% for cat, msg in messages %}
@@ -75,78 +76,74 @@
         <form method="POST" id="editForm">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-            <!-- АККАУНТ -->
             <div class="edit-section">
-                <div class="edit-section-title">Аккаунт</div>
+                <div class="edit-section-title">{{ 'Account' if lang == 'en' else 'Аккаунт' }}</div>
                 <div class="avatar-area">
                     <div class="avatar-circle">
                         {% if user.role in ('seller', 'admin') %}🏪{% else %}🛍️{% endif %}
                     </div>
                     <div class="avatar-info">
                         <strong>{{ user.username }}</strong>
-                        <p>{{ user.role }} · На сайте с {{ user.created_at[:10] }}</p>
+                        <p>{{ user.role }} · {{ 'On site since' if lang == 'en' else 'На сайте с' }} {{ user.created_at[:10] }}</p>
                     </div>
                 </div>
             </div>
 
-            <!-- ЛИЧНЫЕ ДАННЫЕ -->
             <div class="edit-section">
-                <div class="edit-section-title">Личные данные</div>
+                <div class="edit-section-title">{{ 'Personal details' if lang == 'en' else 'Личные данные' }}</div>
 
-                <label>Имя пользователя</label>
+                <label>{{ 'Username' if lang == 'en' else 'Имя пользователя' }}</label>
                 <input type="text" name="username" value="{{ user.username }}"
                        placeholder="username" minlength="3" maxlength="30" required>
-                <p class="hint">Только латинские буквы, цифры и _</p>
+                <p class="hint">{{ 'Latin letters, digits and _ only' if lang == 'en' else 'Только латинские буквы, цифры и _' }}</p>
 
                 <label style="margin-top:14px;">Email</label>
                 <input type="email" name="email" value="{{ user.email or '' }}"
-                       placeholder="Ваш email" required>
+                       placeholder="{{ 'Your email' if lang == 'en' else 'Ваш email' }}" required>
             </div>
 
-            <!-- МАГАЗИН (только продавец/админ) -->
             {% if user.role in ('seller', 'admin') %}
             <div class="edit-section">
-                <div class="edit-section-title">Магазин</div>
+                <div class="edit-section-title">{{ 'Shop' if lang == 'en' else 'Магазин' }}</div>
 
-                <label>Название магазина</label>
+                <label>{{ 'Shop name' if lang == 'en' else 'Название магазина' }}</label>
                 <input type="text" name="shop_name" value="{{ user.shop_name or '' }}"
-                       placeholder="Название магазина">
+                       placeholder="{{ 'Shop name' if lang == 'en' else 'Название магазина' }}">
 
-                <label style="margin-top:14px;">Описание магазина</label>
-                <textarea name="shop_desc" placeholder="Расскажите о своём магазине" style="height:90px;">{{ user.shop_desc or '' }}</textarea>
+                <label style="margin-top:14px;">{{ 'Shop description' if lang == 'en' else 'Описание магазина' }}</label>
+                <textarea name="shop_desc" placeholder="{{ 'Tell about your shop' if lang == 'en' else 'Расскажите о своём магазине' }}" style="height:90px;">{{ user.shop_desc or '' }}</textarea>
             </div>
             {% endif %}
 
-            <!-- СМЕНА ПАРОЛЯ -->
             <div class="edit-section">
-                <div class="edit-section-title">Смена пароля</div>
-                <p class="hint" style="margin-bottom:14px;">Оставьте пустыми, если не меняете пароль</p>
+                <div class="edit-section-title">{{ 'Change password' if lang == 'en' else 'Смена пароля' }}</div>
+                <p class="hint" style="margin-bottom:14px;">{{ 'Leave blank to keep current password' if lang == 'en' else 'Оставьте пустыми, если не меняете пароль' }}</p>
 
-                <label>Текущий пароль</label>
+                <label>{{ 'Current password' if lang == 'en' else 'Текущий пароль' }}</label>
                 <div class="password-toggle">
                     <input type="password" name="current_password" id="cur_pw"
-                           placeholder="Введите текущий пароль" autocomplete="current-password">
+                           placeholder="{{ 'Enter current password' if lang == 'en' else 'Введите текущий пароль' }}" autocomplete="current-password">
                     <button type="button" onclick="togglePw('cur_pw', this)">👁</button>
                 </div>
 
-                <label style="margin-top:14px;">Новый пароль</label>
+                <label style="margin-top:14px;">{{ 'New password' if lang == 'en' else 'Новый пароль' }}</label>
                 <div class="password-toggle">
                     <input type="password" name="new_password" id="new_pw"
-                           placeholder="Минимум 6 символов" autocomplete="new-password">
+                           placeholder="{{ 'At least 6 characters' if lang == 'en' else 'Минимум 6 символов' }}" autocomplete="new-password">
                     <button type="button" onclick="togglePw('new_pw', this)">👁</button>
                 </div>
 
-                <label style="margin-top:14px;">Повторите новый пароль</label>
+                <label style="margin-top:14px;">{{ 'Repeat new password' if lang == 'en' else 'Повторите новый пароль' }}</label>
                 <div class="password-toggle">
                     <input type="password" name="confirm_password" id="conf_pw"
-                           placeholder="Повторите новый пароль" autocomplete="new-password">
+                           placeholder="{{ 'Repeat new password' if lang == 'en' else 'Повторите новый пароль' }}" autocomplete="new-password">
                     <button type="button" onclick="togglePw('conf_pw', this)">👁</button>
                 </div>
-                <p class="hint" id="pw-match-hint" style="display:none; color:#e74c3c;">⚠ Пароли не совпадают</p>
+                <p class="hint" id="pw-match-hint" style="display:none; color:#e74c3c;">⚠ {{ "Passwords don't match" if lang == 'en' else 'Пароли не совпадают' }}</p>
             </div>
 
             <button type="submit" class="btn" style="width:100%; padding:14px; font-size:15px;">
-                💾 Сохранить изменения
+                💾 {{ 'Save changes' if lang == 'en' else 'Сохранить изменения' }}
             </button>
         </form>
     </div>

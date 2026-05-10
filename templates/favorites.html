@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Избранное</title>
-    <meta name="description" content="Избранные товары на Fureoska">
+    <title>{{ 'Favourites' if lang == 'en' else 'Избранное' }}</title>
+    <meta name="description" content="{{ 'Favourite products on Fureoska' if lang == 'en' else 'Избранные товары на Fureoska' }}">
     <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body class="{{ theme }}">
     <header>
-        <a href="/" style="text-decoration:none; color:inherit;"><h1>❤️ Избранное</h1></a>
+        <a href="/" style="text-decoration:none; color:inherit;"><h1>❤️ {{ 'Favourites' if lang == 'en' else 'Избранное' }}</h1></a>
         <div class="header-right">
             <div class="theme-picker">
-            <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
-            <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
-            <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
-        </div>
-            <a href="javascript:history.back()" class="icon-btn">← Назад</a>
+                <a href="/set-theme/light" class="theme-opt light-opt" title="Светлая">☀️</a>
+                <a href="/set-theme/dark"  class="theme-opt dark-opt"  title="Тёмная">🌙</a>
+                <a href="/set-theme/pink"  class="theme-opt pink-opt"  title="Розовая">🌸</a>
+            </div>
+            <a href="/set-lang/{{ 'ru' if lang == 'en' else 'en' }}" class="icon-btn">{{ '🇬🇧 EN' if lang == 'ru' else '🇷🇺 RU' }}</a>
+            <a href="javascript:history.back()" class="icon-btn">← {{ 'Back' if lang == 'en' else 'Назад' }}</a>
             <a href="/cart" class="icon-btn">🛒 {% if cart_count > 0 %}<span class="badge">{{ cart_count }}</span>{% endif %}</a>
         </div>
     </header>
@@ -29,7 +30,7 @@
                 {% if product.photo %}
                     <img src="{{ product.photo }}" alt="{{ product.name }}">
                 {% else %}
-                    <div class="no-photo">Нет фото</div>
+                    <div class="no-photo">{{ 'No photo' if lang == 'en' else 'Нет фото' }}</div>
                 {% endif %}
             </a>
             <div class="card-body">
@@ -48,7 +49,7 @@
                     </select>
                 </div>
                 <div class="card-actions">
-                    <button type="button" onclick="addToCart({{ product.id }})" class="btn ajax-cart-btn" data-pid="{{ product.id }}">🛒 В корзину</button>
+                    <button type="button" onclick="addToCart({{ product.id }})" class="btn ajax-cart-btn" data-pid="{{ product.id }}">🛒 {{ 'Add to cart' if lang == 'en' else 'В корзину' }}</button>
                     <button type="button" onclick="toggleFavorite({{ product.id }}, this)" class="fav-btn active" data-pid="{{ product.id }}">❤️</button>
                 </div>
             </div>
@@ -57,7 +58,7 @@
     </div>
 
     {% if not products %}
-    <p class="empty">Нет избранных товаров</p>
+    <p class="empty">{{ 'No favourite products' if lang == 'en' else 'Нет избранных товаров' }}</p>
     {% endif %}
 <script src="/static/main.js" defer></script>
 </body>
