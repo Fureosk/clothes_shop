@@ -228,23 +228,70 @@ def send_email(to, subject, body):
     except Exception as e:
         app.logger.error(f"[email] Ошибка отправки на {to}: {e}")
 
-def notify_order(order_id, buyer_name, buyer_email, phone, address, payment, total, items, sellers_info):
+def notify_order(order_id, buyer_name, buyer_email, phone, address, payment, total, items, sellers_info, delivery_method="courier"):
+    delivery_labels = {
+        "courier": "Курьер (1–3 дня)",
+        "pickup":  "Самовывоз из магазина",
+        "post":    "Почта России (3–7 дней)",
+    }
+    delivery_label = delivery_labels.get(delivery_method, delivery_method)
+
     lines = "\n".join(
         f"  • {it['product']['name']} ({it['size']}) × {it['qty']} = {it['product']['price'] * it['qty']} ₽"
         for it in items
     )
-    send_email(buyer_email, f"[Fureoska] Ваш заказ #{order_id} принят",
-        f"Здравствуйте, {buyer_name}!\n\nВаш заказ #{order_id} принят и скоро будет обработан.\n\n"
-        f"Состав заказа:\n{lines}\n\nИтого: {total} ₽\nСпособ оплаты: {payment}\nАдрес: {address}\n\nСпасибо!")
-    send_email(ADMIN_EMAIL, f"[Fureoska] Новый заказ #{order_id} на {total} ₽",
-        f"Заказ #{order_id}\nПокупатель: {buyer_name}\nТелефон: {phone}\nEmail: {buyer_email}\n"
-        f"Адрес: {address}\nОплата: {payment}\n\n{lines}\n\nИтого: {total} ₽")
+
+    buyer_body = (
+        f"Здравствуйте, {buyer_name}!\n\n"
+        f"Ваш заказ #{order_id} принят и скоро будет обработан.\n\n"
+        f"━━━ СОСТАВ ЗАКАЗА ━━━\n{lines}\n\n"
+        f"Итого: {total} ₽\n\n"
+        f"━━━ ДОСТАВКА ━━━\n"
+        f"Способ доставки: {delivery_label}\n"
+        f"Адрес: {address}\n\n"
+        f"━━━ ОПЛАТА ━━━\n"
+        f"Способ оплаты: {payment}\n\n"
+        f"━━━ КОНТАКТЫ ━━━\n"
+        f"Телефон: {phone}\n"
+        f"Email: {buyer_email}\n\n"
+        f"Следить за статусом заказа можно в личном кабинете на сайте Fureoska.\n\n"
+        f"Спасибо за покупку! 🎉"
+    )
+    send_email(buyer_email, f"[Fureoska] Ваш заказ #{order_id} принят", buyer_body)
+
+    admin_body = (
+        f"Новый заказ #{order_id}\n\n"
+        f"ПОКУПАТЕЛЬ\n"
+        f"Имя: {buyer_name}\n"
+        f"Телефон: {phone}\n"
+        f"Email: {buyer_email}\n\n"
+        f"ДОСТАВКА\n"
+        f"Способ: {delivery_label}\n"
+        f"Адрес: {address}\n\n"
+        f"ОПЛАТА\n"
+        f"Способ: {payment}\n\n"
+        f"СОСТАВ ЗАКАЗА\n{lines}\n\n"
+        f"Итого: {total} ₽"
+    )
+    send_email(ADMIN_EMAIL, f"[Fureoska] Новый заказ #{order_id} на {total} ₽", admin_body)
+
     for seller_email, seller_name, seller_items in sellers_info:
         sl = "\n".join(f"  • {it['product']['name']} ({it['size']}) × {it['qty']}" for it in seller_items)
-        send_email(seller_email, f"[Fureoska] Купили ваш товар! Заказ #{order_id}",
-            f"Здравствуйте, {seller_name}!\n\nЗаказ #{order_id}:\n{sl}\n\nПокупатель: {buyer_name}, {phone}")
+        seller_body = (
+            f"Здравствуйте, {seller_name}!\n\n"
+            f"Купили ваш товар! Заказ #{order_id}.\n\n"
+            f"СОСТАВ (ваши товары)\n{sl}\n\n"
+            f"ДОСТАВКА\n"
+            f"Способ: {delivery_label}\n"
+            f"Адрес: {address}\n\n"
+            f"ПОКУПАТЕЛЬ\n"
+            f"Имя: {buyer_name}\n"
+            f"Телефон: {phone}\n"
+            f"Email: {buyer_email}"
+        )
+        send_email(seller_email, f"[Fureoska] Купили ваш товар! Заказ #{order_id}", seller_body)
 
-def notify_status_change(order_id, buyer_email, buyer_name, new_status):
+def notify_status_change(order_id, buyer_email, buyer_name, new_status, address="", payment="", delivery_method=""):
     """Уведомление покупателю при смене статуса заказа."""
     status_msg = {
         "В обработке": "Ваш заказ принят в обработку.",
@@ -252,9 +299,23 @@ def notify_status_change(order_id, buyer_email, buyer_name, new_status):
         "Доставлен":   "Ваш заказ доставлен. Спасибо за покупку!",
         "Отменён":     "К сожалению, ваш заказ был отменён.",
     }
+    delivery_labels = {
+        "courier": "Курьер",
+        "pickup":  "Самовывоз",
+        "post":    "Почта России",
+    }
     text = status_msg.get(new_status, f"Статус изменён: {new_status}")
+    delivery_info = ""
+    if address:
+        dl = delivery_labels.get(delivery_method, delivery_method) if delivery_method else ""
+        delivery_info = f"\n━━━ ДОСТАВКА ━━━\n"
+        if dl:
+            delivery_info += f"Способ: {dl}\n"
+        delivery_info += f"Адрес: {address}\n"
+    payment_info = f"\nСпособ оплаты: {payment}\n" if payment else ""
     send_email(buyer_email, f"[Fureoska] Заказ #{order_id}: {new_status}",
-        f"Здравствуйте, {buyer_name}!\n\n{text}\n\nНомер заказа: #{order_id}\n\n"
+        f"Здравствуйте, {buyer_name}!\n\n{text}\n\nНомер заказа: #{order_id}\n"
+        f"{delivery_info}{payment_info}\n"
         f"Следить за статусом можно в личном кабинете.")
 
 def get_admin_stats(conn):
@@ -604,11 +665,14 @@ def order():
     if request.method == "POST":
         if not validate_csrf():
             flash("Ошибка безопасности","error"); return redirect(url_for("order"))
-        buyer_name  = request.form["name"]
-        buyer_email = request.form["email"]
-        phone       = request.form["phone"]
-        address     = request.form["address"]
-        payment     = request.form["payment"]
+        buyer_name      = request.form["name"]
+        buyer_email     = request.form["email"]
+        phone_code      = request.form.get("phone_code", "+7")
+        phone_raw       = request.form.get("phone", "")
+        phone           = f"{phone_code} {phone_raw}".strip()
+        address         = request.form["address"]
+        payment         = request.form["payment"]
+        delivery_method = request.form.get("delivery_type", "courier")
         conn = get_db()
         conn.execute("INSERT INTO orders (buyer_id,buyer_name,phone,email,address,payment,total) VALUES (?,?,?,?,?,?,?)",
                      (user["id"],buyer_name,phone,buyer_email,address,payment,total))
@@ -629,7 +693,7 @@ def order():
         conn.close()
         session["cart"] = {}
         sellers_info = [(s["email"],s["name"],s["items"]) for s in sellers_map.values()]
-        notify_order(order_id,buyer_name,buyer_email,phone,address,payment,total,items,sellers_info)
+        notify_order(order_id,buyer_name,buyer_email,phone,address,payment,total,items,sellers_info,delivery_method)
         return render_template("order_success.html",name=buyer_name,theme=get_theme(),user=current_user(),lang=get_lang())
     return render_template("order.html",items=items,total=total,cart_count=get_cart_count(),theme=get_theme(),user=current_user(),lang=get_lang())
 
@@ -764,7 +828,9 @@ def admin_order_status(oid):
         flash(f"Статус заказа #{oid} обновлён на «{status}»","success")
         # Уведомляем покупателя об изменении статуса
         if order and order["email"]:
-            notify_status_change(oid, order["email"], order["buyer_name"], status)
+            notify_status_change(oid, order["email"], order["buyer_name"], status,
+                                 address=order["address"] or "",
+                                 payment=order["payment"] or "")
     return redirect(url_for("admin_orders"))
 
 if __name__ == "__main__":
