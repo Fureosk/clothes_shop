@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, g
 import os
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -90,56 +90,61 @@ def init_db():
         c.execute("SELECT id FROM users WHERE username='fureosk'")
         sid = c.fetchone()[0]
         products = [
-            ("Пуховик зимний чёрный",5999,"Мужская","Верхняя одежда","Тёплый пуховик на зиму с капюшоном","https://images.pexels.com/photos/3680219/pexels-photo-3680219.jpeg?w=400&h=400&fit=crop"),
-            ("Кожаная куртка чёрная",7999,"Мужская","Верхняя одежда","Стильная кожаная куртка на молнии","https://images.pexels.com/photos/1124468/pexels-photo-1124468.jpeg?w=400&h=400&fit=crop"),
-            ("Парка хаки",6499,"Мужская","Верхняя одежда","Тёплая парка с мехом и капюшоном","https://images.pexels.com/photos/6073952/pexels-photo-6073952.jpeg?w=400&h=400&fit=crop"),
-            ("Бомбер серый",4999,"Мужская","Верхняя одежда","Стильный бомбер на осень-весну","https://images.pexels.com/photos/5698851/pexels-photo-5698851.jpeg?w=400&h=400&fit=crop"),
-            ("Тренч бежевый",8499,"Мужская","Верхняя одежда","Классический тренчкот из плащёвки","https://images.pexels.com/photos/4937449/pexels-photo-4937449.jpeg?w=400&h=400&fit=crop"),
-            ("Дутая жилетка синяя",3299,"Мужская","Верхняя одежда","Лёгкая стёганая жилетка без рукавов","https://images.pexels.com/photos/6311392/pexels-photo-6311392.jpeg?w=400&h=400&fit=crop"),
-            ("Футболка белая базовая",799,"Мужская","Футболки","Базовая хлопковая футболка оверсайз","https://images.pexels.com/photos/8532616/pexels-photo-8532616.jpeg?w=400&h=400&fit=crop"),
-            ("Футболка чёрная",799,"Мужская","Футболки","Классическая чёрная футболка из хлопка","https://images.pexels.com/photos/5698855/pexels-photo-5698855.jpeg?w=400&h=400&fit=crop"),
-            ("Рубашка поло синяя",1299,"Мужская","Футболки","Классическая рубашка поло с воротником","https://images.pexels.com/photos/6311394/pexels-photo-6311394.jpeg?w=400&h=400&fit=crop"),
-            ("Лонгслив полосатый",1499,"Мужская","Футболки","Лонгслив в морскую полоску","https://images.pexels.com/photos/5699150/pexels-photo-5699150.jpeg?w=400&h=400&fit=crop"),
-            ("Футболка с принтом",999,"Мужская","Футболки","Яркая футболка с графическим принтом","https://images.pexels.com/photos/4066293/pexels-photo-4066293.jpeg?w=400&h=400&fit=crop"),
-            ("Рубашка клетчатая",1799,"Мужская","Футболки","Фланелевая рубашка в клетку","https://images.pexels.com/photos/6311387/pexels-photo-6311387.jpeg?w=400&h=400&fit=crop"),
-            ("Джинсы slim синие",2999,"Мужская","Брюки","Зауженные синие джинсы стретч","https://images.pexels.com/photos/1598507/pexels-photo-1598507.jpeg?w=400&h=400&fit=crop"),
-            ("Джинсы чёрные",2999,"Мужская","Брюки","Классические чёрные джинсы прямого кроя","https://images.pexels.com/photos/4210866/pexels-photo-4210866.jpeg?w=400&h=400&fit=crop"),
-            ("Спортивные штаны серые",1999,"Мужская","Брюки","Удобные спортивные штаны с карманами","https://images.pexels.com/photos/7679720/pexels-photo-7679720.jpeg?w=400&h=400&fit=crop"),
-            ("Классические брюки чёрные",3499,"Мужская","Брюки","Строгие классические брюки для офиса","https://images.pexels.com/photos/6311600/pexels-photo-6311600.jpeg?w=400&h=400&fit=crop"),
-            ("Карго брюки хаки",3299,"Мужская","Брюки","Практичные карго с множеством карманов","https://images.pexels.com/photos/6975543/pexels-photo-6975543.jpeg?w=400&h=400&fit=crop"),
-            ("Кроссовки белые",4999,"Мужская","Обувь","Классические белые кроссовки на каждый день","https://images.pexels.com/photos/1464625/pexels-photo-1464625.jpeg?w=400&h=400&fit=crop"),
-            ("Кожаные ботинки коричневые",7999,"Мужская","Обувь","Классические кожаные ботинки на шнурках","https://images.pexels.com/photos/267301/pexels-photo-267301.jpeg?w=400&h=400&fit=crop"),
-            ("Тимберленды жёлтые",8999,"Мужская","Обувь","Легендарные ботинки из нубука","https://images.pexels.com/photos/3261069/pexels-photo-3261069.jpeg?w=400&h=400&fit=crop"),
-            ("Летнее платье белое",2499,"Женская","Платья","Лёгкое белое платье на лето из шифона","https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg?w=400&h=400&fit=crop"),
-            ("Вечернее платье чёрное",5499,"Женская","Платья","Элегантное чёрное платье в пол","https://images.pexels.com/photos/1755428/pexels-photo-1755428.jpeg?w=400&h=400&fit=crop"),
-            ("Платье в цветочек",2999,"Женская","Платья","Нежное платье с цветочным принтом","https://images.pexels.com/photos/4347773/pexels-photo-4347773.jpeg?w=400&h=400&fit=crop"),
-            ("Платье-рубашка джинсовое",3299,"Женская","Платья","Стильное джинсовое платье-рубашка","https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?w=400&h=400&fit=crop"),
-            ("Платье в горошек",2799,"Женская","Платья","Ретро-платье в горошек с поясом","https://images.pexels.com/photos/5886041/pexels-photo-5886041.jpeg?w=400&h=400&fit=crop"),
-            ("Трикотажное платье бежевое",3999,"Женская","Платья","Облегающее тёплое платье из трикотажа","https://images.pexels.com/photos/6311168/pexels-photo-6311168.jpeg?w=400&h=400&fit=crop"),
-            ("Мини-юбка джинсовая",1499,"Женская","Юбки","Стильная джинсовая мини-юбка с пуговицами","https://images.pexels.com/photos/6311479/pexels-photo-6311479.jpeg?w=400&h=400&fit=crop"),
-            ("Плиссированная юбка розовая",1999,"Женская","Юбки","Нежная миди-юбка-плиссе пастельного цвета","https://images.pexels.com/photos/6311251/pexels-photo-6311251.jpeg?w=400&h=400&fit=crop"),
-            ("Юбка-карандаш чёрная",2299,"Женская","Юбки","Классическая юбка-карандаш до колена","https://images.pexels.com/photos/6311390/pexels-photo-6311390.jpeg?w=400&h=400&fit=crop"),
-            ("Макси-юбка льняная",2799,"Женская","Юбки","Лёгкая длинная юбка из льна для лета","https://images.pexels.com/photos/6311327/pexels-photo-6311327.jpeg?w=400&h=400&fit=crop"),
-            ("Шёлковая блузка белая",2299,"Женская","Блузки","Элегантная шёлковая блузка с бантом","https://images.pexels.com/photos/6311178/pexels-photo-6311178.jpeg?w=400&h=400&fit=crop"),
-            ("Блузка в полоску",1799,"Женская","Блузки","Классическая полосатая блузка оверсайз","https://images.pexels.com/photos/6311409/pexels-photo-6311409.jpeg?w=400&h=400&fit=crop"),
-            ("Кружевная блузка бежевая",2999,"Женская","Блузки","Романтичная блузка с кружевными вставками","https://images.pexels.com/photos/6311263/pexels-photo-6311263.jpeg?w=400&h=400&fit=crop"),
-            ("Атласная блузка зелёная",2499,"Женская","Блузки","Блузка из атласной ткани изумрудного цвета","https://images.pexels.com/photos/6311282/pexels-photo-6311282.jpeg?w=400&h=400&fit=crop"),
-            ("Туфли на каблуке чёрные",5999,"Женская","Обувь","Классические лодочки на каблуке 8 см","https://images.pexels.com/photos/336372/pexels-photo-336372.jpeg?w=400&h=400&fit=crop"),
-            ("Белые кеды",3499,"Женская","Обувь","Лёгкие белые кеды для ежедневных прогулок","https://images.pexels.com/photos/1598508/pexels-photo-1598508.jpeg?w=400&h=400&fit=crop"),
-            ("Ботильоны замшевые бежевые",6999,"Женская","Обувь","Элегантные замшевые ботильоны на каблуке","https://images.pexels.com/photos/2562992/pexels-photo-2562992.jpeg?w=400&h=400&fit=crop"),
-            ("Детская куртка красная",2999,"Детская","Верхняя одежда","Яркая демисезонная куртка для детей","https://images.pexels.com/photos/5560021/pexels-photo-5560021.jpeg?w=400&h=400&fit=crop"),
-            ("Зимний комбинезон синий",3999,"Детская","Верхняя одежда","Тёплый зимний комбинезон с капюшоном","https://images.pexels.com/photos/3661350/pexels-photo-3661350.jpeg?w=400&h=400&fit=crop"),
-            ("Ветровка детская жёлтая",1999,"Детская","Верхняя одежда","Яркая лёгкая ветровка на молнии","https://images.pexels.com/photos/6849554/pexels-photo-6849554.jpeg?w=400&h=400&fit=crop"),
-            ("Пуховик детский розовый",3499,"Детская","Верхняя одежда","Тёплый пуховик для девочки","https://images.pexels.com/photos/5559986/pexels-photo-5559986.jpeg?w=400&h=400&fit=crop"),
-            ("Футболка с динозавром",599,"Детская","Футболки","Весёлая футболка с принтом динозавра","https://images.pexels.com/photos/6913977/pexels-photo-6913977.jpeg?w=400&h=400&fit=crop"),
-            ("Футболка полосатая детская",699,"Детская","Футболки","Яркая полосатая футболка с длинным рукавом","https://images.pexels.com/photos/5560022/pexels-photo-5560022.jpeg?w=400&h=400&fit=crop"),
-            ("Футболка с единорогом",799,"Детская","Футболки","Сказочная футболка с единорогом","https://images.pexels.com/photos/6913571/pexels-photo-6913571.jpeg?w=400&h=400&fit=crop"),
-            ("Поло детское белое",899,"Детская","Футболки","Классическое поло для школы и прогулок","https://images.pexels.com/photos/5560018/pexels-photo-5560018.jpeg?w=400&h=400&fit=crop"),
-            ("Джинсы детские синие",1499,"Детская","Брюки","Удобные джинсы с эластичным поясом","https://images.pexels.com/photos/6913562/pexels-photo-6913562.jpeg?w=400&h=400&fit=crop"),
-            ("Спортивные штаны детские",999,"Детская","Брюки","Мягкие спортивные штаны из флиса","https://images.pexels.com/photos/5560026/pexels-photo-5560026.jpeg?w=400&h=400&fit=crop"),
-            ("Леггинсы для девочек",799,"Детская","Брюки","Удобные цветные леггинсы для активных детей","https://images.pexels.com/photos/6913563/pexels-photo-6913563.jpeg?w=400&h=400&fit=crop"),
-            ("Кроссовки детские синие",2499,"Детская","Обувь","Лёгкие кроссовки для активных игр","https://images.pexels.com/photos/1895574/pexels-photo-1895574.jpeg?w=400&h=400&fit=crop"),
-            ("Ботинки детские коричневые",2999,"Детская","Обувь","Тёплые осенние ботинки на флисе","https://images.pexels.com/photos/5560025/pexels-photo-5560025.jpeg?w=400&h=400&fit=crop"),
+            # ── МУЖСКАЯ ──────────────────────────────────────────────────────────────
+            ("Пуховик зимний чёрный",   5999,"Мужская","Верхняя одежда","Тёплый пуховик на зиму с капюшоном",        "https://images.pexels.com/photos/3148452/pexels-photo-3148452.jpeg?w=400&h=400&fit=crop"),
+            ("Кожаная куртка чёрная",   7999,"Мужская","Верхняя одежда","Стильная кожаная куртка на молнии",         "https://images.pexels.com/photos/1124468/pexels-photo-1124468.jpeg?w=400&h=400&fit=crop"),
+            ("Парка хаки",              6499,"Мужская","Верхняя одежда","Тёплая парка с мехом и капюшоном",          "https://images.pexels.com/photos/6311671/pexels-photo-6311671.jpeg?w=400&h=400&fit=crop"),
+            ("Бомбер серый",            4999,"Мужская","Верхняя одежда","Стильный бомбер на осень-весну",            "https://images.pexels.com/photos/5793956/pexels-photo-5793956.jpeg?w=400&h=400&fit=crop"),
+            ("Тренч бежевый",           8499,"Мужская","Верхняя одежда","Классический тренчкот из плащёвки",         "https://images.pexels.com/photos/8483873/pexels-photo-8483873.jpeg?w=400&h=400&fit=crop"),
+            ("Дутая жилетка синяя",     3299,"Мужская","Верхняя одежда","Лёгкая стёганая жилетка без рукавов",       "https://images.pexels.com/photos/6311392/pexels-photo-6311392.jpeg?w=400&h=400&fit=crop"),
+            ("Футболка белая базовая",   799,"Мужская","Футболки",       "Базовая хлопковая футболка оверсайз",       "https://images.pexels.com/photos/8532616/pexels-photo-8532616.jpeg?w=400&h=400&fit=crop"),
+            ("Футболка чёрная",          799,"Мужская","Футболки",       "Классическая чёрная футболка из хлопка",    "https://images.pexels.com/photos/5698855/pexels-photo-5698855.jpeg?w=400&h=400&fit=crop"),
+            ("Рубашка поло синяя",      1299,"Мужская","Футболки",       "Классическая рубашка поло с воротником",    "https://images.pexels.com/photos/6311394/pexels-photo-6311394.jpeg?w=400&h=400&fit=crop"),
+            ("Лонгслив полосатый",      1499,"Мужская","Футболки",       "Лонгслив в морскую полоску",                "https://images.pexels.com/photos/5699150/pexels-photo-5699150.jpeg?w=400&h=400&fit=crop"),
+            ("Футболка с принтом",       999,"Мужская","Футболки",       "Яркая футболка с графическим принтом",      "https://images.pexels.com/photos/4066293/pexels-photo-4066293.jpeg?w=400&h=400&fit=crop"),
+            ("Рубашка клетчатая",       1799,"Мужская","Футболки",       "Фланелевая рубашка в клетку",               "https://images.pexels.com/photos/6311387/pexels-photo-6311387.jpeg?w=400&h=400&fit=crop"),
+            ("Джинсы slim синие",       2999,"Мужская","Брюки",          "Зауженные синие джинсы стретч",             "https://images.pexels.com/photos/1598507/pexels-photo-1598507.jpeg?w=400&h=400&fit=crop"),
+            ("Джинсы чёрные",           2999,"Мужская","Брюки",          "Классические чёрные джинсы прямого кроя",   "https://images.pexels.com/photos/4210866/pexels-photo-4210866.jpeg?w=400&h=400&fit=crop"),
+            ("Спортивные штаны серые",  1999,"Мужская","Брюки",          "Удобные спортивные штаны с карманами",      "https://images.pexels.com/photos/7679720/pexels-photo-7679720.jpeg?w=400&h=400&fit=crop"),
+            ("Классические брюки чёрные",3499,"Мужская","Брюки",         "Строгие классические брюки для офиса",      "https://images.pexels.com/photos/6311600/pexels-photo-6311600.jpeg?w=400&h=400&fit=crop"),
+            ("Карго брюки хаки",        3299,"Мужская","Брюки",          "Практичные карго с множеством карманов",    "https://images.pexels.com/photos/6975543/pexels-photo-6975543.jpeg?w=400&h=400&fit=crop"),
+            ("Кроссовки белые",         4999,"Мужская","Обувь",          "Классические белые кроссовки на каждый день","https://images.pexels.com/photos/1464625/pexels-photo-1464625.jpeg?w=400&h=400&fit=crop"),
+            ("Кожаные ботинки коричневые",7999,"Мужская","Обувь",        "Классические кожаные ботинки на шнурках",   "https://images.pexels.com/photos/267301/pexels-photo-267301.jpeg?w=400&h=400&fit=crop"),
+            ("Тимберленды жёлтые",      8999,"Мужская","Обувь",          "Легендарные ботинки из нубука",             "https://images.pexels.com/photos/3261069/pexels-photo-3261069.jpeg?w=400&h=400&fit=crop"),
+            # ── ЖЕНСКАЯ ──────────────────────────────────────────────────────────────
+            ("Летнее платье белое",     2499,"Женская","Платья",          "Лёгкое белое платье на лето из шифона",     "https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg?w=400&h=400&fit=crop"),
+            ("Вечернее платье чёрное",  5499,"Женская","Платья",          "Элегантное чёрное платье в пол",            "https://images.pexels.com/photos/1755428/pexels-photo-1755428.jpeg?w=400&h=400&fit=crop"),
+            ("Платье в цветочек",       2999,"Женская","Платья",          "Нежное платье с цветочным принтом",         "https://images.pexels.com/photos/4347773/pexels-photo-4347773.jpeg?w=400&h=400&fit=crop"),
+            ("Платье-рубашка джинсовое",3299,"Женская","Платья",          "Стильное джинсовое платье-рубашка",         "https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?w=400&h=400&fit=crop"),
+            ("Платье в горошек",        2799,"Женская","Платья",          "Ретро-платье в горошек с поясом",           "https://images.pexels.com/photos/5886041/pexels-photo-5886041.jpeg?w=400&h=400&fit=crop"),
+            ("Трикотажное платье бежевое",3999,"Женская","Платья",        "Облегающее тёплое платье из трикотажа",     "https://images.pexels.com/photos/6311168/pexels-photo-6311168.jpeg?w=400&h=400&fit=crop"),
+            ("Мини-юбка джинсовая",     1499,"Женская","Юбки",            "Стильная джинсовая мини-юбка с пуговицами", "https://images.pexels.com/photos/6311479/pexels-photo-6311479.jpeg?w=400&h=400&fit=crop"),
+            ("Плиссированная юбка розовая",1999,"Женская","Юбки",         "Нежная миди-юбка-плиссе пастельного цвета", "https://images.pexels.com/photos/6311251/pexels-photo-6311251.jpeg?w=400&h=400&fit=crop"),
+            ("Юбка-карандаш чёрная",   2299,"Женская","Юбки",   "Классическая юбка-карандаш до колена",       "https://images.pexels.com/photos/6311390/pexels-photo-6311390.jpeg?w=400&h=400&fit=crop"),
+            ("Макси-юбка льняная",       2799,"Женская","Юбки",   "Лёгкая длинная юбка из льна для лета",       "https://images.pexels.com/photos/6311327/pexels-photo-6311327.jpeg?w=400&h=400&fit=crop"),
+            ("Шёлковая блузка белая",    2299,"Женская","Блузки",  "Элегантная шёлковая блузка с бантом",        "https://images.pexels.com/photos/6311178/pexels-photo-6311178.jpeg?w=400&h=400&fit=crop"),
+            ("Блузка в полоску",         1799,"Женская","Блузки",  "Классическая полосатая блузка оверсайз",     "https://images.pexels.com/photos/6311409/pexels-photo-6311409.jpeg?w=400&h=400&fit=crop"),
+            ("Кружевная блузка бежевая", 2999,"Женская","Блузки",  "Романтичная блузка с кружевными вставками",  "https://images.pexels.com/photos/6311263/pexels-photo-6311263.jpeg?w=400&h=400&fit=crop"),
+            ("Атласная блузка зелёная",  2499,"Женская","Блузки",  "Блузка из атласной ткани изумрудного цвета", "https://images.pexels.com/photos/6311282/pexels-photo-6311282.jpeg?w=400&h=400&fit=crop"),
+            # Женская обувь — конкретные правильные фото
+            ("Туфли на каблуке чёрные",  5999,"Женская","Обувь",   "Классические лодочки на каблуке 8 см",       "https://images.pexels.com/photos/336372/pexels-photo-336372.jpeg?w=400&h=400&fit=crop"),
+            ("Белые кеды",               3499,"Женская","Обувь",   "Лёгкие белые кеды для ежедневных прогулок",  "https://images.pexels.com/photos/1598508/pexels-photo-1598508.jpeg?w=400&h=400&fit=crop"),
+            ("Ботильоны замшевые бежевые",6999,"Женская","Обувь",  "Элегантные замшевые ботильоны на каблуке",   "https://images.pexels.com/photos/2562992/pexels-photo-2562992.jpeg?w=400&h=400&fit=crop"),
+            # ── ДЕТСКАЯ ──────────────────────────────────────────────────────────────
+            ("Детская куртка красная",   2999,"Детская","Верхняя одежда","Яркая демисезонная куртка для детей",    "https://images.pexels.com/photos/5560021/pexels-photo-5560021.jpeg?w=400&h=400&fit=crop"),
+            ("Зимний комбинезон синий",  3999,"Детская","Верхняя одежда","Тёплый зимний комбинезон с капюшоном",  "https://images.pexels.com/photos/3661350/pexels-photo-3661350.jpeg?w=400&h=400&fit=crop"),
+            ("Ветровка детская жёлтая",  1999,"Детская","Верхняя одежда","Яркая лёгкая ветровка на молнии",       "https://images.pexels.com/photos/6849554/pexels-photo-6849554.jpeg?w=400&h=400&fit=crop"),
+            ("Пуховик детский розовый",  3499,"Детская","Верхняя одежда","Тёплый пуховик для девочки",            "https://images.pexels.com/photos/5559986/pexels-photo-5559986.jpeg?w=400&h=400&fit=crop"),
+            ("Футболка с динозавром",     599,"Детская","Футболки", "Весёлая футболка с принтом динозавра",       "https://images.pexels.com/photos/6913977/pexels-photo-6913977.jpeg?w=400&h=400&fit=crop"),
+            ("Футболка полосатая детская",699,"Детская","Футболки", "Яркая полосатая футболка с длинным рукавом", "https://images.pexels.com/photos/5560022/pexels-photo-5560022.jpeg?w=400&h=400&fit=crop"),
+            ("Футболка с единорогом",     799,"Детская","Футболки", "Сказочная футболка с единорогом",            "https://images.pexels.com/photos/6913571/pexels-photo-6913571.jpeg?w=400&h=400&fit=crop"),
+            ("Поло детское белое",        899,"Детская","Футболки", "Классическое поло для школы и прогулок",     "https://images.pexels.com/photos/5560018/pexels-photo-5560018.jpeg?w=400&h=400&fit=crop"),
+            ("Джинсы детские синие",     1499,"Детская","Брюки",    "Удобные джинсы с эластичным поясом",         "https://images.pexels.com/photos/6913562/pexels-photo-6913562.jpeg?w=400&h=400&fit=crop"),
+            ("Спортивные штаны детские",  999,"Детская","Брюки",    "Мягкие спортивные штаны из флиса",           "https://images.pexels.com/photos/5560026/pexels-photo-5560026.jpeg?w=400&h=400&fit=crop"),
+            ("Леггинсы для девочек",      799,"Детская","Брюки",    "Удобные цветные леггинсы для активных детей","https://images.pexels.com/photos/6913563/pexels-photo-6913563.jpeg?w=400&h=400&fit=crop"),
+            # Детская обувь
+            ("Кроссовки детские синие",  2499,"Детская","Обувь",    "Лёгкие кроссовки для активных игр",          "https://images.pexels.com/photos/1895574/pexels-photo-1895574.jpeg?w=400&h=400&fit=crop"),
+            ("Ботинки детские коричневые",2999,"Детская","Обувь",   "Тёплые осенние ботинки на флисе",            "https://images.pexels.com/photos/5560025/pexels-photo-5560025.jpeg?w=400&h=400&fit=crop"),
         ]
         c.executemany(
             "INSERT INTO products (seller_id,name,price,category,subcategory,description,photo) VALUES (?,?,?,?,?,?,?)",
@@ -153,7 +158,19 @@ SUBCATEGORIES = {
     "Женская":  ["Платья","Юбки","Блузки","Обувь"],
     "Детская":  ["Верхняя одежда","Футболки","Брюки","Обувь"],
 }
-SIZES = ["XS","S","M","L","XL","XXL"]
+SIZES_CLOTHING = ["XS", "S", "M", "L", "XL", "XXL"]
+SIZES_SHOES_MEN     = ["40", "41", "42", "43", "44", "45", "46"]
+SIZES_SHOES_WOMEN   = ["35", "36", "37", "38", "39", "40", "41"]
+SIZES_SHOES_KIDS    = ["28", "29", "30", "31", "32", "33", "34", "35"]
+
+def get_sizes_for_product(product):
+    """Возвращает список размеров в зависимости от категории и подкатегории."""
+    if product and product["subcategory"] == "Обувь":
+        cat = product["category"]
+        if cat == "Мужская":   return SIZES_SHOES_MEN
+        if cat == "Женская":   return SIZES_SHOES_WOMEN
+        if cat == "Детская":   return SIZES_SHOES_KIDS
+    return SIZES_CLOTHING
 
 # ── CSRF защита ──────────────────────────────────────────────
 def generate_csrf_token():
@@ -171,12 +188,16 @@ app.jinja_env.globals["csrf_token"] = generate_csrf_token
 
 # ── Вспомогательные функции ───────────────────────────────────
 def current_user():
-    uid = session.get("user_id")
-    if not uid: return None
-    conn = get_db()
-    user = conn.execute("SELECT * FROM users WHERE id=?",(uid,)).fetchone()
-    conn.close()
-    return user
+    """Return the logged-in user, cached in Flask g for the duration of the request."""
+    if "_current_user" not in g:
+        uid = session.get("user_id")
+        if not uid:
+            g._current_user = None
+        else:
+            conn = get_db()
+            g._current_user = conn.execute("SELECT * FROM users WHERE id=?",(uid,)).fetchone()
+            conn.close()
+    return g._current_user
 
 def get_favorites_ids():
     user = current_user()
@@ -188,7 +209,10 @@ def get_favorites_ids():
     return session.get("favorites",[])
 
 def get_cart_count():
-    return sum(session.get("cart",{}).values())
+    try:
+        return sum(int(v) for v in session.get("cart",{}).values())
+    except (TypeError, ValueError):
+        return 0
 
 def get_theme():
     return session.get("theme","light")
@@ -344,6 +368,11 @@ def register():
         shop_desc= request.form.get("shop_desc","").strip()
         if not username or not email or not password:
             flash("Заполните все поля","error"); return redirect(url_for("register"))
+        if len(password) < 6:
+            flash("Пароль должен быть не короче 6 символов","error"); return redirect(url_for("register"))
+        import re
+        if not re.match(r'^[a-zA-Z0-9_]{3,30}$', username):
+            flash("Логин: только латиница, цифры и _, от 3 до 30 символов","error"); return redirect(url_for("register"))
         pw_hash = generate_password_hash(password)
         conn = get_db()
         try:
@@ -376,7 +405,10 @@ def login():
 
 @app.route("/logout")
 def logout():
-    session.pop("user_id",None); return redirect(url_for("landing"))
+    session.pop("user_id", None)
+    session.pop("cart", None)
+    session.pop("favorites", None)
+    return redirect(url_for("landing"))
 
 # ── PROFILE ───────────────────────────────────────────────────
 @app.route("/profile")
@@ -509,8 +541,10 @@ def home():
     sort        = request.args.get("sort","")
     price_min   = request.args.get("price_min","").strip()
     price_max   = request.args.get("price_max","").strip()
-    page        = int(request.args.get("page","1") or 1)
-    if page < 1: page = 1
+    try:
+        page = max(1, int(request.args.get("page", "1") or 1))
+    except (ValueError, TypeError):
+        page = 1
 
     conn = get_db()
     query = "SELECT * FROM products WHERE 1=1"; params = []
@@ -587,7 +621,9 @@ def product_page(pid):
     conn = get_db()
     seller = conn.execute("SELECT * FROM users WHERE id=?",(product["seller_id"],)).fetchone()
     conn.close()
-    return render_template("product.html",product=product,sizes=SIZES,
+    sizes = get_sizes_for_product(product)
+    default_size = sizes[len(sizes)//2] if sizes else "M"
+    return render_template("product.html",product=product,sizes=sizes,default_size=default_size,
         favorites=get_favorites_ids(),cart_count=get_cart_count(),theme=get_theme(),seller=seller,user=current_user(),lang=get_lang())
 
 # ── CART ──────────────────────────────────────────────────────
@@ -645,6 +681,11 @@ def cart_clear():
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template("404.html", theme=get_theme(), user=current_user(), lang=get_lang()), 404
+
+@app.errorhandler(413)
+def file_too_large(e):
+    flash("Файл слишком большой. Максимальный размер — 5 МБ.", "error")
+    return redirect(request.referrer or url_for("home"))
 
 # ── ORDER ─────────────────────────────────────────────────────
 @app.route("/order", methods=["GET","POST"])

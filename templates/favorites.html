@@ -40,12 +40,17 @@
                 <p class="price">{{ product.price }} ₽</p>
                 <div class="size-select">
                     <select id="size-{{ product.id }}" onchange="saveSize({{ product.id }}, this.value)">
-                        <option value="XS">XS</option>
-                        <option value="S">S</option>
-                        <option value="M" selected>M</option>
-                        <option value="L">L</option>
-                        <option value="XL">XL</option>
-                        <option value="XXL">XXL</option>
+                        {% if product.subcategory == 'Обувь' %}
+                            {% if product.category == 'Мужская' %}
+                                {% for s in ['40','41','42','43','44','45','46'] %}<option value="{{ s }}" {% if s == '42' %}selected{% endif %}>{{ s }}</option>{% endfor %}
+                            {% elif product.category == 'Женская' %}
+                                {% for s in ['35','36','37','38','39','40','41'] %}<option value="{{ s }}" {% if s == '37' %}selected{% endif %}>{{ s }}</option>{% endfor %}
+                            {% else %}
+                                {% for s in ['28','29','30','31','32','33','34','35'] %}<option value="{{ s }}" {% if s == '31' %}selected{% endif %}>{{ s }}</option>{% endfor %}
+                            {% endif %}
+                        {% else %}
+                            {% for s in ['XS','S','M','L','XL','XXL'] %}<option value="{{ s }}" {% if s == 'M' %}selected{% endif %}>{{ s }}</option>{% endfor %}
+                        {% endif %}
                     </select>
                 </div>
                 <div class="card-actions">

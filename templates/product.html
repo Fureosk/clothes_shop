@@ -56,7 +56,7 @@
                 <div class="sizes">
                     {% for size in sizes %}
                     <label class="size-label">
-                        <input type="radio" name="size" value="{{ size }}" {% if size == 'M' %}checked{% endif %}>
+                        <input type="radio" name="size" value="{{ size }}" {% if size == default_size %}checked{% endif %}>
                         <span>{{ size }}</span>
                     </label>
                     {% endfor %}

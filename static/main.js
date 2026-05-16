@@ -6,8 +6,12 @@
 /* ─────────────────────────────────────────────
    1. УТИЛИТЫ
 ───────────────────────────────────────────── */
+var _sizeSaveTimer = {};
 function saveSize(pid, size) {
-  try { localStorage.setItem('size_' + pid, size); } catch (e) {}
+  clearTimeout(_sizeSaveTimer[pid]);
+  _sizeSaveTimer[pid] = setTimeout(function() {
+    try { localStorage.setItem('size_' + pid, size); } catch (e) {}
+  }, 300);
 }
 
 function restoreSizes() {
@@ -23,17 +27,18 @@ function updateCartBadge(count) {
   wrap.innerHTML = count > 0 ? '<span class="badge" id="cart-badge">' + count + '</span>' : '';
 }
 
-function showToast(msg) {
+function showToast(msg, type) {
   var t = document.getElementById('cart-toast');
   if (!t) return;
-  t.textContent = msg;
+  var icon = type === 'error' ? '✕ ' : '✓ ';
+  t.textContent = icon + msg;
   t.style.display = 'block';
-  t.classList.add('show');
+  t.className = 'cart-toast show' + (type === 'error' ? ' cart-toast-error' : '');
   clearTimeout(window._toastTimer);
   window._toastTimer = setTimeout(function () {
     t.classList.remove('show');
     setTimeout(function () { t.style.display = 'none'; }, 300);
-  }, 2000);
+  }, 2500);
 }
 
 /* ─────────────────────────────────────────────
@@ -68,7 +73,7 @@ function addToCart(pid) {
   })
   .catch(function () {
     if (btn) { btn.disabled = false; btn.textContent = btn.dataset.label || '🛒 В корзину'; }
-    showToast('Ошибка, попробуйте снова');
+    showToast('Ошибка, попробуйте снова', 'error');
   });
 }
 
@@ -99,7 +104,7 @@ function toggleFavorite(pid, btn) {
       b.textContent = data.is_fav ? '❤️' : '🤍';
     });
   })
-  .catch(function() { showToast('Ошибка, попробуйте снова'); });
+  .catch(function() { showToast('Ошибка, попробуйте снова', 'error'); });
 }
 
 /* ─────────────────────────────────────────────
