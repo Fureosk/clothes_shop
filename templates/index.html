@@ -68,7 +68,7 @@
     <div class="subnav">
         <a href="/shop?category={{ current }}&subcategory=Все" class="subtab {% if subcategory == 'Все' %}active{% endif %}">{{ 'All' if lang == 'en' else 'Все' }}</a>
         {% for sub in subcats %}
-        <a href="/shop?category={{ current }}&subcategory={{ sub }}" class="subtab {% if subcategory == sub %}active{% endif %}">{{ sub }}</a>
+        <a href="/shop?category={{ current }}&subcategory={{ sub }}" class="subtab {% if subcategory == sub %}active{% endif %}">{{ translate_subcategory(sub, lang) }}</a>
         {% endfor %}
     </div>
     {% endif %}
@@ -128,7 +128,7 @@
                 {% endif %}
             </a>
             <div class="card-body">
-                <div class="category-tag">{{ product.category }} — {{ product.subcategory }}</div>
+                <div class="category-tag">{{ translate_category(product.category, lang) }} — {{ translate_subcategory(product.subcategory, lang) }}</div>
                 <a href="/product/{{ product.id }}" class="card-title"><h2>{{ product.name }}</h2></a>
                 <p class="desc">{{ product.description }}</p>
                 <p class="price">{{ product.price }} ₽</p>

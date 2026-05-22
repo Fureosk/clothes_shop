@@ -95,70 +95,62 @@ def init_db():
 
         # 2. Полный список всех ваших товаров (50 штук)
         products = [
-            # ── МУЖСКАЯ КОЛЛЕКЦИЯ (20 товаров) ───────────────────────────────────────
-            ("Пуховик зимний чёрный",     5999, "Мужская", "Верхняя одежда", "Тёплый пуховик на зиму с капюшоном", "https://images.unsplash.com/photo-1544923246-77307dd654cb?w=500&auto=format&fit=crop&q=80"),
-            ("Кожаная куртка чёрная",     7999, "Мужская", "Верхняя одежда", "Стильная кожаная куртка-косуха на молнии", "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500&auto=format&fit=crop&q=80"),
-            ("Парка хаки",                6499, "Мужская", "Верхняя одежда", "Тёплая удлиненная парка с капюшоном", "https://images.unsplash.com/photo-1548883354-7622d03aca27?w=500&auto=format&fit=crop&q=80"),
-            ("Бомбер серый",              4999, "Мужская", "Верхняя одежда", "Стильный трикотажный бомбер на осень-весну", "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=500&auto=format&fit=crop&q=80"),
-            ("Тренч бежевый",             8499, "Мужская", "Верхняя одежда", "Классический тренчкот из плотной плащёвки", "https://images.unsplash.com/photo-1593533814274-2f090dfd13cc?w=500&auto=format&fit=crop&q=80"),
-            ("Дутая жилетка синяя",       3299, "Мужская", "Верхняя одежда", "Лёгкая стёганая жилетка без рукавов", "https://images.unsplash.com/photo-1620138546344-7b2c0b05133d?w=500&auto=format&fit=crop&q=80"),
-            
-            ("Футболка белая базовая",     799,  "Мужская", "Футболки",       "Базовая хлопковая футболка на вешалке", "https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=500&auto=format&fit=crop&q=80"),
-            ("Футболка чёрная",            799,  "Мужская", "Футболки",       "Классическая чёрная футболка из хлопка", "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&auto=format&fit=crop&q=80"),
-            ("Рубашка поло синяя",        1299, "Мужская", "Футболки",       "Классическая тенниска поло с воротником", "https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?w=500&auto=format&fit=crop&q=80"),
-            ("Лонгслив полосатый",        1499, "Мужская", "Футболки",       "Стильный лонгслив в черно-белую полоску", "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=500&auto=format&fit=crop&q=80"),
-            ("Футболка с принтом",         999,  "Мужская", "Футболки",       "Черная футболка с ярким графическим принтом скелета", "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=500&auto=format&fit=crop&q=80"),
-            ("Рубашка клетчатая",         1799, "Мужская", "Футболки",       "Классическая рубашка на вешалках in магазине", "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=500&auto=format&fit=crop&q=80"),
-            
-            ("Джинсы slim синие",         2999, "Мужская", "Брюки",          "Зауженные синие рваные джинсы деним", "https://images.unsplash.com/photo-1542272604-787c3835535d?w=500&auto=format&fit=crop&q=80"),
-            ("Джинсы чёрные",             2999, "Мужская", "Брюки",          "Классические чёрные джинсы прямого кроя", "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=500&auto=format&fit=crop&q=80"),
-            ("Спортивные штаны серые",    1999, "Мужская", "Брюки",          "Удобные трикотажные джоггеры для спорта", "https://images.unsplash.com/photo-1551854838-212c50b4c184?w=500&auto=format&fit=crop&q=80"),
-            ("Классические брюки чёрные", 3499, "Мужская", "Брюки",          "Строгие тёмные брюки из костюмной ткани", "https://images.unsplash.com/photo-1617113913973-f11265813496?w=500&auto=format&fit=crop&q=80"),
-            ("Карго брюки хаки",          3299, "Мужская", "Брюки",          "Мужской строгий костюм тройка с брюками", "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=500&auto=format&fit=crop&q=80"),
-            
-            ("Кроссовки белые",           4999, "Мужская", "Обувь",          "Повседневные замшевые кроссовки на подошве", "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=500&auto=format&fit=crop&q=80"),
-            ("Кожаные ботинки коричневые", 7999, "Мужская", "Обувь",          "Классические кожаные туфли дерби на шнуровке", "https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=500&auto=format&fit=crop&q=80"),
-            ("Тимберленды жёлтые",        8999, "Мужская", "Обувь",          "Легендарные высокие ботинки из нубука", "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop&q=80"),
 
-            # ── ЖЕНСКАЯ КОЛЛЕКЦИЯ (17 товаров) ───────────────────────────────────────
-            ("Летнее платье белое",       2499, "Женская", "Платья",         "Лёгкое белое платье с узором", "https://images.unsplash.com/photo-1612336307429-8a898d10e223?w=500&auto=format&fit=crop&q=80"),
-            ("Вечернее платье чёрное",    5499, "Женская", "Платья",         "Элегантное чёрное вечернее платье", "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500&auto=format&fit=crop&q=80"),
-            ("Платье в цветочек",         2999, "Женская", "Платья",         "Нежное летящее платье с принтом", "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=500&auto=format&fit=crop&q=80"),
-            ("Платье-рубашка джинсовое",  3299, "Женская", "Платья",         "Повседневное синее платье-рубашка", "https://images.unsplash.com/photo-1585487000160-6ebcfceb0d03?w=500&auto=format&fit=crop&q=80"),
-            ("Платье в горошек",          2799, "Женская", "Платья",         "Яркое желтое платье в горошек в ретро-стиле", "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&auto=format&fit=crop&q=80"),
-            ("Трикотажное платье бежевое", 3999, "Женская", "Платья",         "Объемный тёплый вязаный свитер белого цвета", "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=500&auto=format&fit=crop&q=80"),
-            
-            ("Мини-юбка джинсовая",       1499, "Женская", "Юбки",           "Стильная джинсовая юбка на пуговицах", "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?w=500&auto=format&fit=crop&q=80"),
-            ("Плиссированная юбка розовая", 1999, "Женская", "Юбки",         "Воздушная юбка плиссе нежно-розового цвета", "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?w=500&auto=format&fit=crop&q=80"),
-            ("Юбка-карандаш чёрная",      2299, "Женская", "Юбки",           "Классическая деловая юбка до колена", "https://images.unsplash.com/photo-1591348278863-a8fb3887e2aa?w=500&auto=format&fit=crop&q=80"),
-            ("Макси-юбка льняная",        2799, "Женская", "Юбки",           "Лёгкая длинная желтая юбка макси", "https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?w=500&auto=format&fit=crop&q=80"),
-            
-            ("Шёлковая блузка белая",     2299, "Женская", "Блузки",         "Классическая белая блузка-рубашка из хлопка", "https://images.unsplash.com/photo-1603252109303-2751441dd157?w=500&auto=format&fit=crop&q=80"),
-            ("Блузка в полоску",          1799, "Женская", "Блузки",         "Легкая повседневная кофта в полоску", "https://images.unsplash.com/photo-1598554889165-8139a49f2883?w=500&auto=format&fit=crop&q=80"),
-            ("Кружевная блузка бежевая",  2999, "Женская", "Блузки",         "Нежная розовая блуза свободного кроя", "https://images.unsplash.com/photo-1551163943-3f6a855d1153?w=500&auto=format&fit=crop&q=80"),
-            ("Атласная блузка зелёная",   2499, "Женская", "Блузки",         "Блузка из шелковистого изумрудного атласа", "https://images.unsplash.com/photo-1618244972963-dbee1a7edc95?w=500&auto=format&fit=crop&q=80"),
-            
-            ("Туфли на каблуке чёрные",   5999, "Женская", "Обувь",          "Элегантные красные замшевые туфли", "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=500&auto=format&fit=crop&q=80"),
-            ("Белые кеды",                3499, "Женская", "Обувь",          "Минималистичные белые кожаные кеды", "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=500&auto=format&fit=crop&q=80"),
-            ("Ботильоны замшевые бежевые", 6999, "Женская", "Обувь",          "Осенние бежевые ботильоны на каблуке", "https://images.unsplash.com/photo-1605812383198-0597977963b8?w=500&auto=format&fit=crop&q=80"),
+            # ── МУЖСКАЯ ────────────────
+            ("Пуховик зимний чёрный", 5999, "Мужская", "Верхняя одежда", "Тёплый пуховик на зиму с капюшоном", "https://images.pexels.com/photos/10186999/pexels-photo-10186999.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Кожаная куртка чёрная", 7999, "Мужская", "Верхняя одежда", "Стильная кожаная куртка-косуха на молнии", "https://images.pexels.com/photos/31696292/pexels-photo-31696292.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Парка хаки", 6499, "Мужская", "Верхняя одежда", "Тёплая удлинённая парка с капюшоном цвета хаки", "https://images.pexels.com/photos/15153799/pexels-photo-15153799.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Бомбер красный", 4999, "Мужская", "Верхняя одежда", "Стильный бомбер красного цвета на осень-весну", "https://images.pexels.com/photos/16069733/pexels-photo-16069733.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Тренч бежевый", 8499, "Мужская", "Верхняя одежда", "Классический тренчкот бежевого цвета", "https://images.pexels.com/photos/24838994/pexels-photo-24838994.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Дутая жилетка синяя", 3299, "Мужская", "Верхняя одежда", "Лёгкая стёганая жилетка без рукавов синего цвета", "https://images.pexels.com/photos/11240853/pexels-photo-11240853.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Футболка белая базовая", 799, "Мужская", "Футболки", "Базовая хлопковая футболка белого цвета", "https://images.pexels.com/photos/17858295/pexels-photo-17858295.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Футболка чёрная", 799, "Мужская", "Футболки", "Классическая чёрная футболка из 100% хлопка", "https://images.pexels.com/photos/7658459/pexels-photo-7658459.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Рубашка поло синяя", 1299, "Мужская", "Футболки", "Классическая рубашка поло синего цвета", "https://images.pexels.com/photos/17089178/pexels-photo-17089178.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Лонгслив полосатый", 1499, "Мужская", "Футболки", "Стильный лонгслив в чёрно-белую полоску", "https://images.pexels.com/photos/5945256/pexels-photo-5945256.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Футболка с принтом", 999, "Мужская", "Футболки", "Чёрная футболка с графическим принтом", "https://images.pexels.com/photos/36942017/pexels-photo-36942017.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Рубашка клетчатая", 1799, "Мужская", "Футболки", "Классическая рубашка в клетку из фланели", "https://images.pexels.com/photos/7904073/pexels-photo-7904073.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Джинсы slim синие", 2999, "Мужская", "Брюки", "Зауженные синие джинсы из денима", "https://images.pexels.com/photos/30710244/pexels-photo-30710244.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Джинсы серые", 2999, "Мужская", "Брюки", "Классические серые джинсы прямого кроя", "https://images.pexels.com/photos/15141449/pexels-photo-15141449.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Спортивные штаны серые", 1999, "Мужская", "Брюки", "Удобные трикотажные джоггеры серого цвета", "https://images.pexels.com/photos/10392342/pexels-photo-10392342.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Классические брюки чёрные", 3499, "Мужская", "Брюки", "Строгие чёрные брюки из костюмной ткани", "https://images.pexels.com/photos/13339846/pexels-photo-13339846.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Карго брюки хаки", 3299, "Мужская", "Брюки", "Брюки карго цвета хаки с накладными карманами", "https://images.pexels.com/photos/21050242/pexels-photo-21050242.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Кроссовки белые", 4999, "Мужская", "Обувь", "Повседневные белые кроссовки на толстой подошве", "https://images.pexels.com/photos/14188893/pexels-photo-14188893.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Кожаные ботинки коричневые", 7999, "Мужская", "Обувь", "Классические коричневые кожаные ботинки на шнуровке", "https://images.pexels.com/photos/30156677/pexels-photo-30156677.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Тимберленды жёлтые", 8999, "Мужская", "Обувь", "Легендарные высокие ботинки из жёлтого нубука", "https://images.pexels.com/photos/23319149/pexels-photo-23319149.jpeg?auto=compress&cs=tinysrgb&h=350"),
 
-            # ── ДЕТСКАЯ КОЛЛЕКЦИЯ (13 товаров) ───────────────────────────────────────
-            ("Детская куртка красная",    2999, "Детская", "Верхняя одежда", "Яркая куртка для девочки розового цвета", "https://images.unsplash.com/photo-1621466550398-df80522b9343?w=500&auto=format&fit=crop&q=80"),
-            ("Зимний комбинезон синий",   3999, "Детская", "Верхняя одежда", "Тёплый плотный слитный комбинезон", "https://images.unsplash.com/photo-1540479859555-17af45c78a62?w=500&auto=format&fit=crop&q=80"),
-            ("Ветровка детская жёлтая",   1999, "Детская", "Верхняя одежда", "Уютный вязаный детский желтый свитер", "https://images.unsplash.com/photo-1519457431-44ccd64a579b?w=500&auto=format&fit=crop&q=80"),
-            ("Пуховик детский розовый",   3499, "Детская", "Верхняя одежда", "Плотный зимний костюм: куртка и штаны", "https://images.unsplash.com/photo-1611428813653-aa206c998586?w=500&auto=format&fit=crop&q=80"),
-            
-            ("Футболка с динозавром",      599,  "Детская", "Футболки",       "Мягкий детский свитшот серого цвета", "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?w=500&auto=format&fit=crop&q=80"),
-            ("Футболка полосатая детская",  699,  "Детская", "Футболки",       "Детская белая футболка из тонкого хлопка", "https://images.unsplash.com/photo-1607453813894-22ec15143337?w=500&auto=format&fit=crop&q=80"),
-            ("Futболка с единорогом",      799,  "Детская", "Футболки",       "Летний костюм: футболка и шорты", "https://images.unsplash.com/photo-1565791380713-1756b9a05343?w=500&auto=format&fit=crop&q=80"),
-            ("Поло детское белое",         899,  "Детская", "Футболки",       "Рубашка-поло с коротким рукавом", "https://images.unsplash.com/photo-1519278409-1f56fdda7bf5?w=500&auto=format&fit=crop&q=80"),
-            
-            ("Джинсы детские синие",      1499, "Детская", "Брюки",          "Классические детские синие джинсы прямого кроя", "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=500&auto=format&fit=crop&q=80"),
-            ("Спортивные штаны детские",   999,  "Детская", "Брюки",          "Удобные трикотажные спортивные штанишки", "https://images.unsplash.com/photo-1551854838-212c50b4c184?w=500&auto=format&fit=crop&q=80"),
-            ("Леггинсы для девочек",       799,  "Детская", "Брюки",          "Детские джинсовые шорты на теплую погоду", "https://images.unsplash.com/photo-1519457431-44ccd64a579b?w=500&auto=format&fit=crop&q=80"),
-            
-            ("Кроссовки детские синие",   2499, "Детская", "Обувь",          "Удобные беговые детские кроссовки", "https://images.unsplash.com/photo-1514989940723-e8e5163ccbe8?w=500&auto=format&fit=crop&q=80"),
-            ("Ботинки детские коричневые", 2999, "Детская", "Обувь",          "Прочные кожаные детские ботинки на шнурках", "https://images.unsplash.com/photo-1608256246200-53e635b5b65f?w=500&auto=format&fit=crop&q=80"),
+            # ── ЖЕНСКАЯ ────────────────
+            ("Летнее платье белое", 2499, "Женская", "Платья", "Лёгкое белое летнее платье свободного кроя", "https://images.pexels.com/photos/5128640/pexels-photo-5128640.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Вечернее платье чёрное", 5499, "Женская", "Платья", "Элегантное чёрное вечернее платье в пол", "https://images.pexels.com/photos/14801160/pexels-photo-14801160.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Платье в цветочек", 2999, "Женская", "Платья", "Нежное летящее платье с цветочным принтом", "https://images.pexels.com/photos/5997006/pexels-photo-5997006.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Платье-рубашка джинсовое", 3299, "Женская", "Платья", "Повседневное джинсовое платье-рубашка синего цвета", "https://images.pexels.com/photos/4887215/pexels-photo-4887215.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Платье в горошек", 2799, "Женская", "Платья", "Яркое платье в горошек в ретро-стиле", "https://images.pexels.com/photos/20478838/pexels-photo-20478838.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Трикотажное платье бежевое", 3999, "Женская", "Платья", "Тёплое трикотажное платье бежевого цвета", "https://images.pexels.com/photos/15758653/pexels-photo-15758653.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Мини-юбка джинсовая", 1499, "Женская", "Юбки", "Стильная джинсовая мини-юбка на пуговицах", "https://images.pexels.com/photos/1670808/pexels-photo-1670808.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Плиссированная юбка белая", 1999, "Женская", "Юбки", "Воздушная юбка плиссе белого цвета", "https://images.pexels.com/photos/9422877/pexels-photo-9422877.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Юбка-карандаш синяя", 2299, "Женская", "Юбки", "Классическая синяя юбка-карандаш до колена", "https://images.pexels.com/photos/33424851/pexels-photo-33424851.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Макси-юбка льняная", 2799, "Женская", "Юбки", "Лёгкая длинная льняная юбка макси", "https://images.pexels.com/photos/8053683/pexels-photo-8053683.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Шёлковая блузка чёрная", 2299, "Женская", "Блузки", "Изящная чёрная блузка из шёлкового материала", "https://images.pexels.com/photos/26756782/pexels-photo-26756782.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Блузка в полоску", 1799, "Женская", "Блузки", "Лёгкая повседневная блузка в морскую полоску", "https://images.pexels.com/photos/20211065/pexels-photo-20211065.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Кружевная блузка коричневая", 2999, "Женская", "Блузки", "Нежная коричневая блузка с кружевной отделкой", "https://images.pexels.com/photos/16381436/pexels-photo-16381436.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Атласная блузка зелёная", 2499, "Женская", "Блузки", "Блузка из изумрудного атласа с мягким блеском", "https://images.pexels.com/photos/13887809/pexels-photo-13887809.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Туфли на каблуке чёрные", 5999, "Женская", "Обувь", "Элегантные чёрные туфли на высоком каблуке", "https://images.pexels.com/photos/37595216/pexels-photo-37595216.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Белые кеды", 3499, "Женская", "Обувь", "Минималистичные белые кожаные кеды", "https://images.pexels.com/photos/20216689/pexels-photo-20216689.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Ботильоны замшевые бежевые", 6999, "Женская", "Обувь", "Осенние бежевые ботильоны на каблуке из замши", "https://images.pexels.com/photos/35218478/pexels-photo-35218478.jpeg?auto=compress&cs=tinysrgb&h=350"),
+
+            # ── ДЕТСКАЯ ────────────────
+            ("Детская куртка красная", 2999, "Детская", "Верхняя одежда", "Яркая красная куртка для детей на молнии", "https://images.pexels.com/photos/35484017/pexels-photo-35484017.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Зимний комбинезон синий", 3999, "Детская", "Верхняя одежда", "Тёплый синий слитный комбинезон для зимы", "https://images.pexels.com/photos/30367841/pexels-photo-30367841.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Ветровка детская салатовая", 1999, "Детская", "Верхняя одежда", "Лёгкая салатовая ветровка для прогулок", "https://images.pexels.com/photos/5788237/pexels-photo-5788237.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Пуховик детский белый", 3499, "Детская", "Верхняя одежда", "Тёплый белый пуховик для девочки", "https://images.pexels.com/photos/9511985/pexels-photo-9511985.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Футболка с динозавром", 599, "Детская", "Футболки", "Детская футболка с весёлым принтом динозавра", "https://images.pexels.com/photos/15179151/pexels-photo-15179151.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Футболка полосатая детская", 699, "Детская", "Футболки", "Детская футболка в яркую полоску", "https://images.pexels.com/photos/9488193/pexels-photo-9488193.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Футболка с единорогом", 799, "Детская", "Футболки", "Детская футболка с принтом единорога", "https://images.pexels.com/photos/15897592/pexels-photo-15897592.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Поло детское белое", 899, "Детская", "Футболки", "Детская рубашка-поло белого цвета с коротким рукавом", "https://images.pexels.com/photos/19418966/pexels-photo-19418966.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Джинсы детские синие", 1499, "Детская", "Брюки", "Классические синие джинсы прямого кроя для детей", "https://images.pexels.com/photos/30683099/pexels-photo-30683099.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Спортивные штаны детские", 999, "Детская", "Брюки", "Мягкие трикотажные спортивные штаны для детей", "https://images.pexels.com/photos/14571334/pexels-photo-14571334.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Леггинсы для девочек", 799, "Детская", "Брюки", "Удобные цветные леггинсы для девочек", "https://images.pexels.com/photos/7223235/pexels-photo-7223235.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Кроссовки детские синие", 2499, "Детская", "Обувь", "Удобные синие кроссовки для активных детей", "https://images.pexels.com/photos/4987523/pexels-photo-4987523.jpeg?auto=compress&cs=tinysrgb&h=350"),
+            ("Ботинки детские коричневые", 2999, "Детская", "Обувь", "Прочные коричневые кожаные ботинки для детей", "https://images.pexels.com/photos/15057253/pexels-photo-15057253.jpeg?auto=compress&cs=tinysrgb&h=350"),
         ]
 
         # 3. Загружаем весь список в базу данных
@@ -175,6 +167,38 @@ SUBCATEGORIES = {
     "Женская":  ["Платья","Юбки","Блузки","Обувь"],
     "Детская":  ["Верхняя одежда","Футболки","Брюки","Обувь"],
 }
+SUBCATEGORY_TRANSLATIONS = {
+    "ru": {
+        "Верхняя одежда": "Верхняя одежда",
+        "Футболки":        "Футболки",
+        "Брюки":           "Брюки",
+        "Обувь":           "Обувь",
+        "Платья":          "Платья",
+        "Юбки":            "Юбки",
+        "Блузки":          "Блузки",
+    },
+    "en": {
+        "Верхняя одежда": "Outerwear",
+        "Футболки":        "T-Shirts",
+        "Брюки":           "Trousers",
+        "Обувь":           "Footwear",
+        "Платья":          "Dresses",
+        "Юбки":            "Skirts",
+        "Блузки":          "Blouses",
+    },
+}
+
+CATEGORY_TRANSLATIONS = {
+    "ru": {"Мужская": "Мужская", "Женская": "Женская", "Детская": "Детская", "Все": "Все"},
+    "en": {"Мужская": "Men's",   "Женская": "Women's", "Детская": "Kids'",   "Все": "All"},
+}
+
+def translate_subcategory(name, lang="ru"):
+    return SUBCATEGORY_TRANSLATIONS.get(lang, SUBCATEGORY_TRANSLATIONS["ru"]).get(name, name)
+
+def translate_category(name, lang="ru"):
+    return CATEGORY_TRANSLATIONS.get(lang, CATEGORY_TRANSLATIONS["ru"]).get(name, name)
+
 SIZES_CLOTHING = ["XS", "S", "M", "L", "XL", "XXL"]
 SIZES_SHOES_MEN     = ["40", "41", "42", "43", "44", "45", "46"]
 SIZES_SHOES_WOMEN   = ["35", "36", "37", "38", "39", "40", "41"]
@@ -202,6 +226,8 @@ def validate_csrf():
     return True
 
 app.jinja_env.globals["csrf_token"] = generate_csrf_token
+app.jinja_env.globals["translate_subcategory"] = translate_subcategory
+app.jinja_env.globals["translate_category"] = translate_category
 
 # ── Вспомогательные функции ───────────────────────────────────
 def current_user():
