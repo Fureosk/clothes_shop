@@ -62,6 +62,40 @@
             cursor: pointer;
             padding: 4px;
         }
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border2);
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 500;
+            padding: 7px 14px;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            text-decoration: none;
+            font-family: inherit;
+        }
+        .btn-back:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+        .btn-logout {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(232,69,69,0.08);
+            border: 1px solid rgba(232,69,69,0.2);
+            color: var(--accent2);
+            font-size: 13px;
+            font-weight: 500;
+            padding: 7px 14px;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            text-decoration: none;
+            font-family: inherit;
+        }
+        .btn-logout:hover { background: rgba(232,69,69,0.18); color: #fff; }
 
         /* SIDEBAR */
         .sidebar { 
@@ -202,8 +236,12 @@
         <button class="burger" onclick="toggleSidebar()">☰</button>
         <div class="logo-txt">Fureoska <span>{{ "Admin" if lang == "en" else "Панель" }}</span></div>
     </div>
-    <div style="font-size:13px; color:var(--muted)">
-        {{ "Role:" if lang == "en" else "Роль:" }} <strong style="color:var(--accent2)">{{ user.role }}</strong>
+    <div style="display:flex; align-items:center; gap:16px;">
+        <a href="/shop" class="btn-back">← {{ "To shop" if lang == "en" else "В магазин" }}</a>
+        <div style="font-size:13px; color:var(--muted)">
+            {{ "Role:" if lang == "en" else "Роль:" }} <strong style="color:var(--accent2)">{{ user.role }}</strong>
+        </div>
+        <a href="/logout" class="btn-logout">{{ "Logout" if lang == "en" else "Выйти" }}</a>
     </div>
 </header>
 

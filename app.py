@@ -388,8 +388,8 @@ def register():
         if len(password) < 6:
             flash("Пароль должен быть не короче 6 символов","error"); return redirect(url_for("register"))
         import re
-        if not re.match(r'^[a-zA-Z0-9_]{3,30}$', username):
-            flash("Логин: только латиница, цифры и _, от 3 до 30 символов","error"); return redirect(url_for("register"))
+        if not re.match(r'^[a-zA-Zа-яА-ЯёЁ0-9_]{3,30}$', username):
+            flash("Логин: буквы (латиница или кириллица), цифры и _, от 3 до 30 символов","error"); return redirect(url_for("register"))
         pw_hash = generate_password_hash(password)
         conn = get_db()
         try:
@@ -469,7 +469,7 @@ def profile_edit():
         new_username = request.form.get("username","").strip()
         if new_username and new_username != user["username"]:
             import re
-            if not re.match(r'^[a-zA-Z0-9_]{3,30}$', new_username):
+            if not re.match(r'^[a-zA-Zа-яА-ЯёЁ0-9_]{3,30}$', new_username):
                 flash("Имя пользователя: только латиница, цифры и _, от 3 до 30 символов","error")
                 conn.close(); return redirect(url_for("profile_edit"))
             try:
