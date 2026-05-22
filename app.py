@@ -569,6 +569,30 @@ def product_delete(pid):
 def landing():
     return render_template("welcome.html", user=current_user(), lang=get_lang())
 
+@app.route("/support", methods=["POST"])
+def support():
+    from flask import request as req
+    data = req.get_json(silent=True) or {}
+    name    = data.get("name","").strip()
+    email   = data.get("email","").strip()
+    subject = data.get("subject","").strip() or "Обращение в поддержку"
+    message = data.get("message","").strip()
+    if not name or not email or not message:
+        return jsonify({"ok": False, "error": "Заполните все поля"})
+    body = (
+        f"Новое обращение в поддержку\n\n"
+        f"Имя: {name}\n"
+        f"Email: {email}\n"
+        f"Тема: {subject}\n\n"
+        f"Сообщение:\n{message}"
+    )
+    try:
+        send_email("fureoskwork@gmail.com", f"[Fureoska Support] {subject}", body)
+        return jsonify({"ok": True})
+    except Exception as e:
+        app.logger.error(f"[support] Ошибка отправки: {e}")
+        return jsonify({"ok": False, "error": str(e)})
+
 @app.route("/set-lang/<lang_code>")
 def set_lang(lang_code):
     if lang_code in ("ru","en"):

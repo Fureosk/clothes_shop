@@ -302,12 +302,75 @@
             font-size: 13px;
         }
 
+        /* SUPPORT */
+        .support-section {
+            padding: 80px 40px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .support-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 40px;
+        }
+
+        .support-form input,
+        .support-form textarea {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 14px 18px;
+            color: #fff;
+            font-size: 15px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+            width: 100%;
+        }
+
+        .support-form input::placeholder,
+        .support-form textarea::placeholder { color: rgba(255,255,255,0.3); }
+
+        .support-form input:focus,
+        .support-form textarea:focus { border-color: rgba(255,107,107,0.5); }
+
+        .support-form textarea { resize: vertical; min-height: 140px; }
+
+        .support-form button {
+            background: #fff;
+            color: #0a0a0a;
+            border: none;
+            border-radius: 12px;
+            padding: 15px 32px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            align-self: flex-start;
+        }
+
+        .support-form button:hover { background: #f0f0f0; transform: translateY(-2px); }
+
+        .support-msg {
+            margin-top: 16px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .support-msg.success { background: rgba(100,200,100,0.1); border: 1px solid rgba(100,200,100,0.25); color: #7dda7d; }
+        .support-msg.error   { background: rgba(255,100,100,0.1); border: 1px solid rgba(255,100,100,0.25); color: #ff8e8e; }
+
         @media (max-width: 768px) {
             .landing-nav { padding: 16px 20px; }
             .cat-grid { grid-template-columns: 1fr; }
             .features-grid { grid-template-columns: repeat(2, 1fr); }
             .stats-section { gap: 30px; flex-wrap: wrap; }
             .section { padding: 60px 20px; }
+            .support-section { padding: 60px 20px; }
             .landing-footer { flex-direction: column; gap: 12px; text-align: center; }
         }
     </style>
@@ -440,12 +503,64 @@
         </a>
     </section>
 
+    <!-- SUPPORT -->
+    <section class="support-section" id="support">
+        <div class="section-title">{{ 'Support' if lang == 'en' else 'Поддержка' }}</div>
+        <div class="section-sub">{{ 'Having an issue with your order? Write to us and we\'ll help.' if lang == 'en' else 'Проблема с заказом или товаром? Напишите нам — разберёмся.' }}</div>
+        <form class="support-form" id="supportForm">
+            <input type="text" id="sup-name" placeholder="{{ 'Your name' if lang == 'en' else 'Ваше имя' }}" required>
+            <input type="email" id="sup-email" placeholder="{{ 'Your email' if lang == 'en' else 'Ваш email' }}" required>
+            <input type="text" id="sup-subject" placeholder="{{ 'Subject (e.g. order #123)' if lang == 'en' else 'Тема (например, заказ №123)' }}">
+            <textarea id="sup-message" placeholder="{{ 'Describe your issue...' if lang == 'en' else 'Опишите проблему...' }}" required></textarea>
+            <button type="submit">{{ '📩 Send' if lang == 'en' else '📩 Отправить' }}</button>
+        </form>
+        <div class="support-msg" id="supportMsg"></div>
+    </section>
+
     <!-- FOOTER -->
+
     <footer class="landing-footer">
         <span>© 2026 Fureoska. {{ 'All rights reserved.' if lang == 'en' else 'Все права защищены.' }}</span>
         <span>{{ 'Fashion for everyone' if lang == 'en' else 'Мода для всех' }} ✨</span>
     </footer>
 
 </body>
-<script src="/static/main.js"></script>
-</html>
+    <!-- SUPPORT FORM JS -->
+    <script>
+    document.getElementById('supportForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = this.querySelector('button');
+        const msg = document.getElementById('supportMsg');
+        btn.disabled = true;
+        btn.textContent = '{{ "Sending..." if lang == "en" else "Отправляем..." }}';
+        try {
+            const res = await fetch('/support', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    name:    document.getElementById('sup-name').value,
+                    email:   document.getElementById('sup-email').value,
+                    subject: document.getElementById('sup-subject').value,
+                    message: document.getElementById('sup-message').value,
+                })
+            });
+            const data = await res.json();
+            msg.style.display = 'block';
+            if (data.ok) {
+                msg.className = 'support-msg success';
+                msg.textContent = '{{ "Message sent! We\'ll get back to you soon." if lang == "en" else "Сообщение отправлено! Мы ответим вам в ближайшее время." }}';
+                this.reset();
+            } else {
+                msg.className = 'support-msg error';
+                msg.textContent = '{{ "Something went wrong. Try again." if lang == "en" else "Что-то пошло не так. Попробуйте ещё раз." }}';
+            }
+        } catch {
+            msg.style.display = 'block';
+            msg.className = 'support-msg error';
+            msg.textContent = '{{ "Connection error. Try again later." if lang == "en" else "Ошибка соединения. Попробуйте позже." }}';
+        }
+        btn.disabled = false;
+        btn.textContent = '{{ "📩 Send" if lang == "en" else "📩 Отправить" }}';
+    });
+    </script>
+
